@@ -94,7 +94,7 @@ public class Player : MonoBehaviour
 			rig.velocity = new Vector3 (0, rig.velocity.y, 0);
 		}
 
-		//transform.right = (transform.position.x > opponent.position.x) ? Vector3.left : Vector3.right;
+		transform.right = rig.velocity.x > 0 ? Vector3.right : Vector3.left;
 
 		if (Input.GetMouseButtonDown (0))
 		{
