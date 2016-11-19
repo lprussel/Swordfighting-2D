@@ -18,25 +18,34 @@ public class Player : MonoBehaviour
 	private Rigidbody rig;
 
 	private float moveSpeed = 3f;
-	private float attackSpeed = 200f;
+	private float attackSpeed = 100f;
 
-	private float attackTime = .05f;
-	private float telegraphTime = .25f;
+	private float attackTime = .025f;
+	private float telegraphTime = .15f;
 	private float attackEndDelay = .1f;
 
 	private float horizontalInput;
 
-	private bool shouldDashAttack;
-
-	//public Transform opponent;
-
 	private Animation anim;
+
+	private MultiplayerInput input;
 
 	void Start ()
 	{
 		rig = GetComponent<Rigidbody> ();
 		anim = GetComponent<Animation> ();
+		input = GetComponent<MultiplayerInput> ();
+
+		input.OnReceiveAttackInput += OnReceiveAttackInput;
+		input.OnReceiveDodgeInput += OnReceiveDodgeInput;
+
 		ChangeState (PlayerState.IDLE);
+	}
+
+	void OnDisable ()
+	{
+		input.OnReceiveAttackInput += OnReceiveAttackInput;
+		input.OnReceiveDodgeInput += OnReceiveDodgeInput;
 	}
 
 	void ChangeState (PlayerState newState)
@@ -84,24 +93,28 @@ public class Player : MonoBehaviour
 
 	void Idle ()
 	{
-		horizontalInput = Input.GetAxisRaw ("Horizontal");
-		if (Mathf.Abs (horizontalInput) > 0)
+		horizontalInput = input.controllerInput.x;
+
+		if (Mathf.Abs (horizontalInput) > .05)
 		{
 			rig.velocity = new Vector3 (horizontalInput * moveSpeed, rig.velocity.y, 0);
+			transform.right = rig.velocity.x > 0 ? Vector3.right : Vector3.left;
 		}
 		else
 		{
 			rig.velocity = new Vector3 (0, rig.velocity.y, 0);
 		}
+	}
 
-		transform.right = rig.velocity.x > 0 ? Vector3.right : Vector3.left;
-
-		if (Input.GetMouseButtonDown (0))
-		{
-			if (Mathf.Abs (horizontalInput) > 0)
-				shouldDashAttack = true;
+	void OnReceiveAttackInput ()
+	{
+		if (playerState == PlayerState.IDLE)
 			ChangeState (PlayerState.TELEGRAPHING);
-		}
+	}
+
+	void OnReceiveDodgeInput ()
+	{
+
 	}
 
 	private Coroutine telegraphCoroutine;
@@ -129,17 +142,19 @@ public class Player : MonoBehaviour
 		float t = 0;
 		rig.velocity = new Vector3 (0, rig.velocity.y, 0);
 		anim.Play ("Slash");
+
 		while (t < attackTime)
 		{
 			t += Time.deltaTime;
-			if (shouldDashAttack)
-				rig.velocity = new Vector3 (transform.right.x * attackSpeed, rig.velocity.y, 0);
+			rig.velocity = new Vector3 (transform.right.x * attackSpeed, rig.velocity.y, 0);
 
 			yield return null;
 		}
+
 		rig.velocity = new Vector3 (0, rig.velocity.y, 0);
+
 		yield return new WaitForSeconds (attackEndDelay);
-		shouldDashAttack = false;
+
 		ChangeState (PlayerState.IDLE);
 	}
 
@@ -154,5 +169,11 @@ public class Player : MonoBehaviour
 			StopCoroutine (currentCoroutine);
 			currentCoroutine = StartCoroutine (newCoroutine);
 		}
+	}
+
+	public void GotHit (Player otherPlayer)
+	{
+		ChangeState (PlayerState.HIT);
+		rig.velocity = otherPlayer.rig.velocity;
 	}
 }
