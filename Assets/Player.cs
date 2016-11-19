@@ -28,7 +28,7 @@ public class Player : MonoBehaviour
 
 	private bool shouldDashAttack;
 
-	public Transform opponent;
+	//public Transform opponent;
 
 	private Animation anim;
 
@@ -94,7 +94,7 @@ public class Player : MonoBehaviour
 			rig.velocity = new Vector3 (0, rig.velocity.y, 0);
 		}
 
-		transform.right = (transform.position.x > opponent.position.x) ? Vector3.left : Vector3.right;
+		//transform.right = (transform.position.x > opponent.position.x) ? Vector3.left : Vector3.right;
 
 		if (Input.GetMouseButtonDown (0))
 		{
