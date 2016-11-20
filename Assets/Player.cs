@@ -16,11 +16,10 @@ public class Player : MonoBehaviour
 
 	public PlayerState playerState;
 
-	public int playerNum = 0;
-
 	private Rigidbody rig;
 
 	private float moveSpeed = 3f;
+	private int moveDirection;
 
 	//private float attackSpeed = 100f;
 	private float attackDistance = 5f;
@@ -126,11 +125,12 @@ public class Player : MonoBehaviour
 	void HandleMovement ()
 	{
 		horizontalInput = input.controllerInput.x;
+		moveDirection = (rig.velocity.x == 0) ? (transform.right.x > 0 ? 1 : -1) : (rig.velocity.x > 0 ? 1 : -1);
+		transform.right = input.mousePosition.x > transform.position.x ? Vector3.right : Vector3.left;
 
 		if (Mathf.Abs (horizontalInput) > .05)
 		{
 			rig.velocity = new Vector3 (horizontalInput * moveSpeed, rig.velocity.y, 0);
-			transform.right = rig.velocity.x > 0 ? Vector3.right : Vector3.left;
 		}
 		else
 		{
@@ -272,7 +272,7 @@ public class Player : MonoBehaviour
 		{
 			t += Time.fixedDeltaTime;
 			//rig.velocity = new Vector3 (transform.right.x * attackSpeed, rig.velocity.y, 0);
-			transform.position = (Vector3.Lerp (initialPosition, initialPosition + new Vector3 (transform.right.x * dashDistance * distanceMult, 0, 0), dashCurve.Evaluate(t / dashTime)));
+			transform.position = (Vector3.Lerp (initialPosition, initialPosition + new Vector3 (dashDistance * distanceMult * moveDirection, 0, 0), dashCurve.Evaluate(t / dashTime)));
 
 			yield return new WaitForFixedUpdate ();
 		}
@@ -301,8 +301,9 @@ public class Player : MonoBehaviour
 
 	public void GotHit (Player otherPlayer)
 	{
-		Renderer[] rends = GetComponentsInChildren<Renderer> ();
-
+		if (playerState == PlayerState.DASHING)
+			return;
+		
 		ChangeState (PlayerState.HIT);
 		int mult = otherPlayer.transform.position.x > transform.position.x ? -1 : 1;
 		rig.velocity = new Vector3 (25 * mult, 0, 0);

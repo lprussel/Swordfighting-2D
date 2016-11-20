@@ -5,10 +5,14 @@ public class GameCamera : MonoBehaviour
 {
 	public Transform[] players;
 	public Vector3 offset;
+	public static GameCamera instance;
+	[HideInInspector]
+	public Camera thisCamera;
 
-	void Start ()
+	void Awake ()
 	{
-		
+		instance = this;
+		thisCamera = GetComponent<Camera> ();
 	}
 
 	void Update ()
