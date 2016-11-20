@@ -11,6 +11,7 @@ public class Player : MonoBehaviour
 		HIT,
 		CANT_MOVE
 	}
+
 	public PlayerState playerState;
 
 	public int playerNum = 0;
@@ -18,9 +19,11 @@ public class Player : MonoBehaviour
 	private Rigidbody rig;
 
 	private float moveSpeed = 3f;
-	private float attackSpeed = 100f;
 
-	private float attackTime = .025f;
+	//private float attackSpeed = 100f;
+	private float attackDistance = 5f;
+	private float attackTime = .01f;
+
 	private float telegraphTime = .15f;
 	private float attackEndDelay = .1f;
 
@@ -29,6 +32,8 @@ public class Player : MonoBehaviour
 	private Animation anim;
 
 	private MultiplayerInput input;
+
+	public LayerMask mask;
 
 	void Start ()
 	{
@@ -44,8 +49,8 @@ public class Player : MonoBehaviour
 
 	void OnDisable ()
 	{
-		input.OnReceiveAttackInput += OnReceiveAttackInput;
-		input.OnReceiveDodgeInput += OnReceiveDodgeInput;
+		input.OnReceiveAttackInput -= OnReceiveAttackInput;
+		input.OnReceiveDodgeInput -= OnReceiveDodgeInput;
 	}
 
 	void ChangeState (PlayerState newState)
@@ -55,19 +60,19 @@ public class Player : MonoBehaviour
 
 		switch (newState)
 		{
-		case PlayerState.IDLE:
-			anim.CrossFade ("Idle");
-			break;
-		case PlayerState.TELEGRAPHING:
-			Telegraph ();
-			break;
-		case PlayerState.ATTACKING:
-			Attack ();
-			break;
-		case PlayerState.HIT:
-			break;
-		case PlayerState.CANT_MOVE:
-			break;
+			case PlayerState.IDLE:
+				anim.CrossFade ("Idle");
+				break;
+			case PlayerState.TELEGRAPHING:
+				Telegraph ();
+				break;
+			case PlayerState.ATTACKING:
+				Attack ();
+				break;
+			case PlayerState.HIT:
+				break;
+			case PlayerState.CANT_MOVE:
+				break;
 		}
 
 		playerState = newState;
@@ -77,17 +82,18 @@ public class Player : MonoBehaviour
 	{
 		switch (playerState)
 		{
-		case PlayerState.IDLE:
-			Idle ();
-			break;
-		case PlayerState.TELEGRAPHING:
-			break;
-		case PlayerState.ATTACKING:
-			break;
-		case PlayerState.HIT:
-			break;
-		case PlayerState.CANT_MOVE:
-			break;
+			case PlayerState.IDLE:
+				Idle ();
+				break;
+			case PlayerState.TELEGRAPHING:
+				break;
+			case PlayerState.ATTACKING:
+				break;
+			case PlayerState.HIT:
+				rig.velocity = new Vector3 (Mathf.Lerp (rig.velocity.x, 0, Time.deltaTime * 5), rig.velocity.y, rig.velocity.z);
+				break;
+			case PlayerState.CANT_MOVE:
+				break;
 		}
 	}
 
@@ -118,9 +124,10 @@ public class Player : MonoBehaviour
 	}
 
 	private Coroutine telegraphCoroutine;
+
 	void Telegraph ()
 	{
-		InterruptCoroutine (telegraphCoroutine, _Telegraph());
+		InterruptCoroutine (telegraphCoroutine, _Telegraph ());
 	}
 
 	IEnumerator _Telegraph ()
@@ -132,9 +139,10 @@ public class Player : MonoBehaviour
 	}
 
 	private Coroutine attackCoroutine;
+
 	void Attack ()
 	{
-		InterruptCoroutine (attackCoroutine, _Attack());
+		InterruptCoroutine (attackCoroutine, _Attack ());
 	}
 
 	IEnumerator _Attack ()
@@ -143,12 +151,31 @@ public class Player : MonoBehaviour
 		rig.velocity = new Vector3 (0, rig.velocity.y, 0);
 		anim.Play ("Slash");
 
+		Vector3 initialPosition = transform.position;
+
+		float distanceMult = CalculateAttackDistance ();
+
+		bool hitPlayerFlag = false;
+
 		while (t < attackTime)
 		{
-			t += Time.deltaTime;
-			rig.velocity = new Vector3 (transform.right.x * attackSpeed, rig.velocity.y, 0);
+			t += Time.fixedDeltaTime;
+			//rig.velocity = new Vector3 (transform.right.x * attackSpeed, rig.velocity.y, 0);
+			rig.MovePosition (Vector3.Lerp (initialPosition, initialPosition + new Vector3 (transform.right.x * attackDistance * distanceMult, 0, 0), t / attackTime));
+			if ((t / attackTime) > .5f && !hitPlayerFlag)
+			{
+				RaycastHit[] hits = Physics.RaycastAll (transform.position, transform.right, attackDistance, mask, QueryTriggerInteraction.UseGlobal);
+				for (int i = 0; i < hits.Length; i++)
+				{
+					hitPlayerFlag = true;
 
-			yield return null;
+					RaycastHit hit = hits [i];
+					if (hit.collider.tag == "Player" && hit.collider.gameObject != gameObject)
+						hit.collider.GetComponent<Player> ().GotHit (this);
+				}
+			}
+
+			yield return new WaitForFixedUpdate ();
 		}
 
 		rig.velocity = new Vector3 (0, rig.velocity.y, 0);
@@ -156,6 +183,23 @@ public class Player : MonoBehaviour
 		yield return new WaitForSeconds (attackEndDelay);
 
 		ChangeState (PlayerState.IDLE);
+	}
+
+	float CalculateAttackDistance ()
+	{
+		float acceptableDistance;
+		RaycastHit hit;
+
+		if (Physics.Raycast (transform.position, transform.right, out hit, attackDistance, mask, QueryTriggerInteraction.UseGlobal))
+		{
+			acceptableDistance = (hit.point - transform.position).magnitude / attackDistance;
+		}
+		else
+		{
+			acceptableDistance = 1;
+		}
+
+		return acceptableDistance;
 	}
 
 	void InterruptCoroutine (Coroutine currentCoroutine, IEnumerator newCoroutine)
@@ -173,7 +217,14 @@ public class Player : MonoBehaviour
 
 	public void GotHit (Player otherPlayer)
 	{
+		Renderer[] rends = GetComponentsInChildren<Renderer> ();
+
+		for (int i = 0; i < rends.Length; i++)
+		{
+			rends [i].material.color = Color.red;
+		}
+
 		ChangeState (PlayerState.HIT);
-		rig.velocity = otherPlayer.rig.velocity;
+		rig.velocity = new Vector3 (15, 0, 0);
 	}
 }
