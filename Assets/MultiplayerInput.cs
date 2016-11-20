@@ -10,6 +10,8 @@ public class MultiplayerInput : MonoBehaviour
 
 	public Action OnReceiveAttackInput = delegate { };
 	public Action OnReceiveDodgeInput = delegate { };
+	public Action OnBlockInputEnter = delegate { };
+	public Action OnBlockInputExit = delegate { };
 
 	void Update ()
 	{
@@ -25,6 +27,14 @@ public class MultiplayerInput : MonoBehaviour
 			if (Input.GetMouseButtonDown (0))
 			{
 				OnReceiveAttackInput ();
+			}
+			if (Input.GetMouseButtonDown (1))
+			{
+				OnBlockInputEnter ();
+			}
+			if (Input.GetMouseButtonUp (1))
+			{
+				OnBlockInputExit ();
 			}
 		}
 	}
