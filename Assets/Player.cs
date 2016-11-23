@@ -10,6 +10,7 @@ public class Player : MonoBehaviour
 		TELEGRAPHING,
 		ATTACKING,
 		DASHING,
+		JUMPING,
 		HIT,
 		CANT_MOVE
 	}
@@ -43,7 +44,9 @@ public class Player : MonoBehaviour
 	private MultiplayerInput input;
 
 	public LayerMask standardMask;
-	public LayerMask dashMask;
+	public LayerMask ignorePlayerMask;
+
+	private bool grounded;
 
 	void Start ()
 	{
@@ -53,9 +56,10 @@ public class Player : MonoBehaviour
 
 		input.OnReceiveAttackInput += OnReceiveAttackInput;
 		input.OnReceiveDodgeInput += OnReceiveDodgeInput;
+		input.OnReceiveJumpInput += OnReceiveJumpInput;
 
-		input.OnBlockInputEnter += OnReceiveBlockEnterInput;
-		input.OnBlockInputExit += OnReceiveBlockExitInput;
+		input.OnBlockInputEnter += OnBlockInputEnter;
+		input.OnBlockInputExit += OnBlockInputExit;
 
 		ChangeState (PlayerState.IDLE);
 	}
@@ -64,6 +68,10 @@ public class Player : MonoBehaviour
 	{
 		input.OnReceiveAttackInput -= OnReceiveAttackInput;
 		input.OnReceiveDodgeInput -= OnReceiveDodgeInput;
+		input.OnReceiveJumpInput -= OnReceiveJumpInput;
+
+		input.OnBlockInputEnter -= OnBlockInputEnter;
+		input.OnBlockInputExit -= OnBlockInputExit;
 	}
 
 	void ChangeState (PlayerState newState)
@@ -86,6 +94,9 @@ public class Player : MonoBehaviour
 			case PlayerState.DASHING:
 				Dash ();
 				break;
+			case PlayerState.JUMPING:
+				rig.velocity = new Vector3 (rig.velocity.x, 25f, rig.velocity.z);
+				break;
 			case PlayerState.HIT:
 				break;
 			case PlayerState.CANT_MOVE:
@@ -104,7 +115,7 @@ public class Player : MonoBehaviour
 				anim.CrossFade ("Idle");
 				break;
 			case PlayerState.BLOCKING:
-				HandleMovement ();
+				rig.velocity = new Vector3 (Mathf.Lerp (rig.velocity.x, 0, Time.deltaTime * 10), rig.velocity.y, rig.velocity.z);
 				anim.CrossFade ("Block", .1f);
 				break;
 			case PlayerState.TELEGRAPHING:
@@ -113,8 +124,12 @@ public class Player : MonoBehaviour
 				break;
 			case PlayerState.DASHING:
 				break;
+			case PlayerState.JUMPING:
+				break;
 			case PlayerState.HIT:
 				rig.velocity = new Vector3 (Mathf.Lerp (rig.velocity.x, 0, Time.deltaTime * 10), rig.velocity.y, rig.velocity.z);
+				if (rig.velocity.x == 0)
+					ChangeState (PlayerState.IDLE);
 				break;
 			case PlayerState.CANT_MOVE:
 				rig.velocity = new Vector3 (Mathf.Lerp (rig.velocity.x, 0, Time.deltaTime * 5), rig.velocity.y, rig.velocity.z);
@@ -128,6 +143,8 @@ public class Player : MonoBehaviour
 		moveDirection = input.controllerInput.x > 0 ? 1 : -1;//(rig.velocity.x == 0) ? (transform.right.x > 0 ? 1 : -1) : (rig.velocity.x > 0 ? 1 : -1);
 		transform.right = input.mousePosition.x > transform.position.x ? Vector3.right : Vector3.left;
 
+		CheckGrounded ();
+
 		if (Mathf.Abs (horizontalInput) > .05)
 		{
 			rig.velocity = new Vector3 (horizontalInput * moveSpeed, rig.velocity.y, 0);
@@ -136,6 +153,18 @@ public class Player : MonoBehaviour
 		{
 			rig.velocity = new Vector3 (0, rig.velocity.y, 0);
 		}
+	}
+
+	void CheckGrounded ()
+	{
+		RaycastHit hit;
+
+		if (Physics.Raycast (transform.position, -transform.up, out hit, 1f, ignorePlayerMask, QueryTriggerInteraction.UseGlobal))
+		{
+			grounded = true;
+		}
+		else
+			grounded = false;
 	}
 
 	void OnReceiveAttackInput ()
@@ -150,16 +179,22 @@ public class Player : MonoBehaviour
 			ChangeState (PlayerState.DASHING);
 	}
 
-	void OnReceiveBlockEnterInput ()
+	void OnBlockInputEnter ()
 	{
 		if (playerState == PlayerState.IDLE)
 			ChangeState (PlayerState.BLOCKING);
 	}
 
-	void OnReceiveBlockExitInput ()
+	void OnBlockInputExit ()
 	{
 		if (playerState == PlayerState.BLOCKING)
 			ChangeState (PlayerState.IDLE);
+	}
+
+	void OnReceiveJumpInput ()
+	{
+		if (playerState == PlayerState.IDLE && grounded)
+			ChangeState (PlayerState.JUMPING);
 	}
 
 	private Coroutine telegraphCoroutine;
@@ -264,7 +299,7 @@ public class Player : MonoBehaviour
 
 		Vector3 initialPosition = transform.position;
 
-		float distanceMult = CalculateMoveDistance (dashDistance, dashMask);
+		float distanceMult = CalculateMoveDistance (dashDistance, ignorePlayerMask);
 
 		rig.isKinematic = true;
 
@@ -303,8 +338,10 @@ public class Player : MonoBehaviour
 	{
 		if (playerState == PlayerState.DASHING)
 			return;
+
+		if (playerState != PlayerState.BLOCKING)
+			ChangeState (PlayerState.HIT);
 		
-		ChangeState (PlayerState.HIT);
 		int mult = otherPlayer.transform.position.x > transform.position.x ? -1 : 1;
 		rig.velocity = new Vector3 (25 * mult, 0, 0);
 	}

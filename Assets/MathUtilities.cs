@@ -29,4 +29,30 @@ public class MathUtilities
 			return false;
 		}
 	}
+
+	public enum Axis
+	{
+		X,
+		Y,
+		Z
+	}
+
+	public static Vector3 FlattenVector(Vector3 vector, Axis axis)
+	{
+		Vector3 vectorOutput = vector;
+		switch (axis)
+		{
+			case Axis.X:
+				vectorOutput.x = 0;
+				break;
+			case Axis.Y:
+				vectorOutput.y = 0;
+				break;
+			case Axis.Z:
+				vectorOutput.z = 0;
+				break;
+		}
+
+		return vectorOutput;
+	}
 }

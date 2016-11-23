@@ -15,6 +15,7 @@ public class MultiplayerInput : MonoBehaviour
 	public Action OnReceiveDodgeInput = delegate { };
 	public Action OnBlockInputEnter = delegate { };
 	public Action OnBlockInputExit = delegate { };
+	public Action OnReceiveJumpInput = delegate { };
 
 	private Plane gamePlane;
 
@@ -39,7 +40,7 @@ public class MultiplayerInput : MonoBehaviour
 
 			MathUtilities.LinePlaneIntersection (cameraPosition, mouseVector, Vector3.zero, -Vector3.forward, out mousePosition);
 
-			if (Input.GetKeyDown (KeyCode.Space))
+			if (Input.GetKeyDown (KeyCode.E))
 			{
 				OnReceiveDodgeInput ();
 			}
@@ -54,6 +55,10 @@ public class MultiplayerInput : MonoBehaviour
 			if (Input.GetMouseButtonUp (1))
 			{
 				OnBlockInputExit ();
+			}
+			if (Input.GetKeyDown (KeyCode.Space))
+			{
+				OnReceiveJumpInput ();
 			}
 		}
 	}
