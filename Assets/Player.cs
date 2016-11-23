@@ -101,6 +101,7 @@ public class Player : MonoBehaviour
 				rig.velocity = new Vector3 (rig.velocity.x, jumpSpeed, rig.velocity.z);
 				break;
 			case PlayerState.HIT:
+				anim.Play ("GotHit");
 				break;
 			case PlayerState.CANT_MOVE:
 				break;
@@ -347,8 +348,8 @@ public class Player : MonoBehaviour
 
 		bool wasBlocked = false;
 
-		if (playerState == PlayerState.BLOCKING && transform.forward.x > 0 && otherPlayer.transform.position.x > transform.position.x ||
-		    playerState == PlayerState.BLOCKING && transform.forward.x < 0 && otherPlayer.transform.position.x < transform.position.x)
+		if (playerState == PlayerState.BLOCKING && transform.right.x > 0 && otherPlayer.transform.position.x > transform.position.x ||
+			playerState == PlayerState.BLOCKING && transform.right.x < 0 && otherPlayer.transform.position.x < transform.position.x)
 		{
 			wasBlocked = true;
 		}

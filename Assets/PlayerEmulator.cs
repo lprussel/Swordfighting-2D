@@ -11,13 +11,14 @@ public class PlayerEmulator : MonoBehaviour
 
 	private float attackRange = 3.0f;
 
+	private float jumpRange = 4.0f;
+
 	public enum AI_State
 	{
 		FOLLOWING,
 		BLOCKING,
 		ATTACKING,
-		DODGING,
-		IN_AIR
+		DODGING
 	}
 	public AI_State aiState;
 
@@ -41,6 +42,7 @@ public class PlayerEmulator : MonoBehaviour
 	{
 		if (!thisPlayer.grounded)
 			return;
+
 		if (vectorToOpponent.x > 0)
 			thisInput.mousePosition.x = transform.position.x + 5;
 		else if (vectorToOpponent.x < 0)
@@ -73,6 +75,14 @@ public class PlayerEmulator : MonoBehaviour
 			else if (rand == 2)
 			{
 				StartCoroutine (BlockSomeShit ());
+			}
+		}
+
+		if (vectorToOpponent.x > -jumpRange && vectorToOpponent.x < jumpRange)
+		{
+			if (opponent.transform.position.y > transform.position.y + 1f)
+			{
+				thisInput.OnReceiveJumpInput ();
 			}
 		}
 	}
