@@ -46,7 +46,10 @@ public class Player : MonoBehaviour
 	public LayerMask standardMask;
 	public LayerMask ignorePlayerMask;
 
-	private bool grounded;
+	[HideInInspector]
+	public bool grounded;
+	private float height = 1.5f;
+	private float jumpSpeed = 15f;
 
 	void Start ()
 	{
@@ -95,7 +98,7 @@ public class Player : MonoBehaviour
 				Dash ();
 				break;
 			case PlayerState.JUMPING:
-				rig.velocity = new Vector3 (rig.velocity.x, 25f, rig.velocity.z);
+				rig.velocity = new Vector3 (rig.velocity.x, jumpSpeed, rig.velocity.z);
 				break;
 			case PlayerState.HIT:
 				break;
@@ -125,6 +128,7 @@ public class Player : MonoBehaviour
 			case PlayerState.DASHING:
 				break;
 			case PlayerState.JUMPING:
+				HandleMovement ();
 				break;
 			case PlayerState.HIT:
 				rig.velocity = new Vector3 (Mathf.Lerp (rig.velocity.x, 0, Time.deltaTime * 10), rig.velocity.y, rig.velocity.z);
@@ -159,9 +163,11 @@ public class Player : MonoBehaviour
 	{
 		RaycastHit hit;
 
-		if (Physics.Raycast (transform.position, -transform.up, out hit, 1f, ignorePlayerMask, QueryTriggerInteraction.UseGlobal))
+		if (Physics.Raycast (transform.position, -transform.up, out hit, height, ignorePlayerMask, QueryTriggerInteraction.UseGlobal))
 		{
 			grounded = true;
+			if (playerState == PlayerState.JUMPING)
+				ChangeState (PlayerState.IDLE);
 		}
 		else
 			grounded = false;
@@ -339,7 +345,15 @@ public class Player : MonoBehaviour
 		if (playerState == PlayerState.DASHING)
 			return;
 
-		if (playerState != PlayerState.BLOCKING)
+		bool wasBlocked = false;
+
+		if (playerState == PlayerState.BLOCKING && transform.forward.x > 0 && otherPlayer.transform.position.x > transform.position.x ||
+		    playerState == PlayerState.BLOCKING && transform.forward.x < 0 && otherPlayer.transform.position.x < transform.position.x)
+		{
+			wasBlocked = true;
+		}
+
+		if (!wasBlocked)
 			ChangeState (PlayerState.HIT);
 		
 		int mult = otherPlayer.transform.position.x > transform.position.x ? -1 : 1;

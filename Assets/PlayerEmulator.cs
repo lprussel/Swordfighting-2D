@@ -39,6 +39,8 @@ public class PlayerEmulator : MonoBehaviour
 
 	void EmulateInput ()
 	{
+		if (!thisPlayer.grounded)
+			return;
 		if (vectorToOpponent.x > 0)
 			thisInput.mousePosition.x = transform.position.x + 5;
 		else if (vectorToOpponent.x < 0)
