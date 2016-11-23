@@ -125,7 +125,7 @@ public class Player : MonoBehaviour
 	void HandleMovement ()
 	{
 		horizontalInput = input.controllerInput.x;
-		moveDirection = (rig.velocity.x == 0) ? (transform.right.x > 0 ? 1 : -1) : (rig.velocity.x > 0 ? 1 : -1);
+		moveDirection = input.controllerInput.x > 0 ? 1 : -1;//(rig.velocity.x == 0) ? (transform.right.x > 0 ? 1 : -1) : (rig.velocity.x > 0 ? 1 : -1);
 		transform.right = input.mousePosition.x > transform.position.x ? Vector3.right : Vector3.left;
 
 		if (Mathf.Abs (horizontalInput) > .05)
