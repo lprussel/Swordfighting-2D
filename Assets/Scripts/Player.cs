@@ -49,7 +49,7 @@ public class Player : MonoBehaviour
 	[HideInInspector]
 	public bool grounded;
 	private float height = 1.5f;
-	private float jumpSpeed = 15f;
+	private float jumpSpeed = 30f;
 
 	void Start ()
 	{
@@ -240,6 +240,8 @@ public class Player : MonoBehaviour
 
 		bool hitPlayerFlag = false;
 
+		AudioManager.instance.PlaySound (AudioManager.SoundSet.SLASH);
+
 		while (t < attackTime)
 		{
 			t += Time.fixedDeltaTime;
@@ -254,7 +256,9 @@ public class Player : MonoBehaviour
 
 					RaycastHit hit = hits [i];
 					if (hit.collider.tag == "Player" && hit.collider.gameObject != gameObject)
+					{
 						hit.collider.GetComponent<Player> ().GotHit (this);
+					}
 				}
 			}
 
@@ -310,6 +314,8 @@ public class Player : MonoBehaviour
 
 		rig.isKinematic = true;
 
+		AudioManager.instance.PlaySound (AudioManager.SoundSet.DASH);
+
 		while (t < dashTime)
 		{
 			t += Time.fixedDeltaTime;
@@ -355,7 +361,16 @@ public class Player : MonoBehaviour
 		}
 
 		if (!wasBlocked)
+		{
 			ChangeState (PlayerState.HIT);
+			EffectsManager.instance.StartCoroutine (EffectsManager.instance.OnPlayerHit (otherPlayer, this));
+			AudioManager.instance.PlaySound (AudioManager.SoundSet.HIT);
+		}
+		else
+		{
+			EffectsManager.instance.StartCoroutine (EffectsManager.instance.OnPlayerBlock (otherPlayer, this));
+			AudioManager.instance.PlaySound (AudioManager.SoundSet.BLOCK);
+		}
 		
 		int mult = otherPlayer.transform.position.x > transform.position.x ? -1 : 1;
 		rig.velocity = new Vector3 (25 * mult, 0, 0);
