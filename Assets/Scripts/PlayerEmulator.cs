@@ -78,13 +78,13 @@ public class PlayerEmulator : MonoBehaviour
 			}
 		}
 
-		if (vectorToOpponent.x > -jumpRange && vectorToOpponent.x < jumpRange)
-		{
-			if (opponent.transform.position.y > transform.position.y + 1f)
-			{
-				thisInput.OnReceiveJumpInput ();
-			}
-		}
+		//if (vectorToOpponent.x > -jumpRange && vectorToOpponent.x < jumpRange)
+		//{
+		//	if (opponent.transform.position.y > transform.position.y + 1f)
+		//	{
+		//		thisInput.OnReceiveJumpInput ();
+		//	}
+		//}
 	}
 
 	IEnumerator BlockSomeShit ()
