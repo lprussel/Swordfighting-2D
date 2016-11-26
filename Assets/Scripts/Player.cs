@@ -55,7 +55,7 @@ public class Player : MonoBehaviour
 
 	public Coroutine currentCombatCoroutine;
 
-	private float playerGotHitTime = .75f;
+	private float playerGotHitTime = .5f;
 
 	void Start ()
 	{
@@ -149,7 +149,7 @@ public class Player : MonoBehaviour
 	void HandleMovement ()
 	{
 		horizontalInput = input.controllerInput.x;
-		moveDirection = input.controllerInput.x == 0 ? (transform.right.x > 0 ? -1 : 1) : (input.controllerInput.x < 0 ? -1 : 1);//(rig.velocity.x == 0) ? (transform.right.x > 0 ? 1 : -1) : (rig.velocity.x > 0 ? 1 : -1);
+		moveDirection = input.controllerInput.x == 0 ? (transform.right.x > 0 ? -1 : 1) : (input.controllerInput.x > 0 ? 1 : -1);//(rig.velocity.x == 0) ? (transform.right.x > 0 ? 1 : -1) : (rig.velocity.x > 0 ? 1 : -1);
 		//transform.right = input.mousePosition.x > transform.position.x ? Vector3.right : Vector3.left;
 		transform.right = otherPlayer.transform.position.x > transform.position.x ? Vector3.right : Vector3.left;
 
@@ -262,7 +262,7 @@ public class Player : MonoBehaviour
 					RaycastHit hit = hits [i];
 					if (hit.collider.tag == "Player" && hit.collider.gameObject != gameObject)
 					{
-						hit.collider.GetComponent<Player> ()._GotHit (this);
+						hit.collider.GetComponent<Player> ().GotHit (this);
 					}
 				}
 			}
@@ -341,6 +341,8 @@ public class Player : MonoBehaviour
 
 	void InterruptCoroutine (Coroutine currentCoroutine, IEnumerator newCoroutine)
 	{
+		if (currentCombatCoroutine == dashCoroutine)
+			ChangeState(PlayerState.IDLE);
 		if (currentCombatCoroutine != null)
 			StopCoroutine (currentCombatCoroutine);
 		
@@ -359,12 +361,12 @@ public class Player : MonoBehaviour
 
 	public Coroutine hitCoroutine;
 
-	public void _GotHit (Player otherPlayer)
+	public void GotHit (Player otherPlayer)
 	{
-		InterruptCoroutine (hitCoroutine, GotHit (otherPlayer));
+		InterruptCoroutine (hitCoroutine, _GotHit (otherPlayer));
 	}
 
-	private IEnumerator GotHit (Player otherPlayer)
+	private IEnumerator _GotHit (Player otherPlayer)
 	{
 		if (playerState == PlayerState.DASHING)
 			yield break;
