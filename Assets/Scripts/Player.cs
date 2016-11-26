@@ -222,7 +222,8 @@ public class Player : MonoBehaviour
 
 	IEnumerator _Telegraph ()
 	{
-		rig.velocity = new Vector3 (0, rig.velocity.y, 0);
+		rig.useGravity = false;
+		rig.velocity = new Vector3 (0, 0, 0);
 		anim.Play ("Telegraph");
 		yield return new WaitForSeconds (telegraphTime);
 		ChangeState (PlayerState.ATTACKING);
@@ -236,7 +237,8 @@ public class Player : MonoBehaviour
 	IEnumerator _Attack ()
 	{
 		float t = 0;
-		rig.velocity = new Vector3 (0, rig.velocity.y, 0);
+		rig.velocity = new Vector3 (0, 0, 0);
+		rig.useGravity = true;
 
 		string attackName = GetAttackName();
 		anim.Play (attackName);
@@ -253,7 +255,7 @@ public class Player : MonoBehaviour
 		{
 			t += Time.fixedDeltaTime;
 			//rig.velocity = new Vector3 (transform.right.x * attackSpeed, rig.velocity.y, 0);
-			rig.MovePosition (Vector3.Lerp (initialPosition, initialPosition + new Vector3 (transform.right.x * attackDistance * distanceMult, 0, 0), attackCurve.Evaluate(t / attackTime)));
+			transform.position = Vector3.Lerp (initialPosition, initialPosition + new Vector3 (transform.right.x * attackDistance * distanceMult, 0, 0), attackCurve.Evaluate(t / attackTime));
 			if ((t / attackTime) > .5f && !hitPlayerFlag)
 			{
 				RaycastHit[] hits = Physics.RaycastAll (transform.position, transform.right, attackDistance, standardMask, QueryTriggerInteraction.UseGlobal);
@@ -272,8 +274,6 @@ public class Player : MonoBehaviour
 
 			yield return new WaitForFixedUpdate ();
 		}
-
-		rig.velocity = new Vector3 (0, rig.velocity.y, 0);
 
 		yield return new WaitForSeconds (attackEndDelay);
 
@@ -312,7 +312,7 @@ public class Player : MonoBehaviour
 	IEnumerator _Dash()
 	{
 		float t = 0;
-		rig.velocity = new Vector3 (0, rig.velocity.y, 0);
+		rig.velocity = new Vector3 (0, 0, 0);
 
 		Vector3 initialPosition = transform.position;
 
@@ -344,6 +344,8 @@ public class Player : MonoBehaviour
 
 	void InterruptCoroutine (Coroutine currentCoroutine, IEnumerator newCoroutine)
 	{
+		rig.useGravity = true;
+
 		if (currentCombatCoroutine != null)
 		{
 			StopCoroutine (currentCombatCoroutine);

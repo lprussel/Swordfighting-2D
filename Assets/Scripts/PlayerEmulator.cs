@@ -65,7 +65,7 @@ public class PlayerEmulator : MonoBehaviour
 		{
 			thisInput.controllerInput.x = 0;
 
-			if (thisPlayer.playerState != Player.PlayerState.IDLE || !thisPlayer.grounded)
+			if (thisPlayer.playerState != Player.PlayerState.IDLE)
 				return;
 
 			int rand = Random.Range (0, 5);
