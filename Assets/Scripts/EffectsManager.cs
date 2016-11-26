@@ -35,6 +35,7 @@ public class EffectsManager : MonoBehaviour
 
 		newHitEffect.SetActive (true);
 		newHitEffect.transform.right = attackingPlayer.transform.right;
+		newHitEffect.transform.position = attackedPlayer.transform.position;
 		newHitEffect.GetComponent<Animation> ().Play ("PlayerHit");
 
 		while (t < maxT)
