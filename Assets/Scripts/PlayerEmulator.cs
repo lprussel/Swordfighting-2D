@@ -63,16 +63,16 @@ public class PlayerEmulator : MonoBehaviour
 			if (thisPlayer.playerState != Player.PlayerState.IDLE)
 				return;
 
-			int rand = Random.Range (0, 3);
-			if (rand == 0)
+			int rand = Random.Range (0, 5);
+			if (rand == 0 || rand == 1 || rand == 2)
 			{
 				StartCoroutine (AttackSomeShit ());
 			}
-			else if (rand == 1)
+			else if (rand == 3)
 			{
 				thisInput.OnReceiveDodgeInput ();
 			}
-			else if (rand == 2)
+			else if (rand == 4)
 			{
 				StartCoroutine (BlockSomeShit ());
 			}

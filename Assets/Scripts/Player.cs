@@ -55,6 +55,8 @@ public class Player : MonoBehaviour
 
 	public Coroutine currentCombatCoroutine;
 
+	private float playerGotHitTime = .75f;
+
 	void Start ()
 	{
 		rig = GetComponent<Rigidbody> ();
@@ -390,7 +392,7 @@ public class Player : MonoBehaviour
 		int mult = otherPlayer.transform.position.x > transform.position.x ? -1 : 1;
 		rig.velocity = new Vector3 (25 * mult, 0, 0);
 
-		yield return new WaitForSeconds (1);
+		yield return new WaitForSeconds (playerGotHitTime);
 
 		ChangeState (PlayerState.IDLE);
 	}
