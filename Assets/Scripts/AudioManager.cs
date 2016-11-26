@@ -35,7 +35,6 @@ public class AudioManager : MonoBehaviour
 				break;
 			case SoundSet.HIT:
 				soundToPlay = hitSound;
-				Debug.Log ("HIT SOUND");
 				break;
 			case SoundSet.SLASH:
 				soundToPlay = slashSound;
