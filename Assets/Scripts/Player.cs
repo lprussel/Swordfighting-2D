@@ -189,19 +189,19 @@ public class Player : MonoBehaviour
 
 	void OnReceiveAttackInput ()
 	{
-		if (playerState == PlayerState.IDLE)
+		if (playerState == PlayerState.IDLE || playerState == PlayerState.JUMPING)
 			ChangeState (PlayerState.TELEGRAPHING);
 	}
 
 	void OnReceiveDodgeInput ()
 	{
-		if (playerState == PlayerState.IDLE)
+		if (playerState == PlayerState.IDLE || playerState == PlayerState.JUMPING)
 			ChangeState (PlayerState.DASHING);
 	}
 
 	void OnBlockInputEnter ()
 	{
-		if (playerState == PlayerState.IDLE)
+		if (playerState == PlayerState.IDLE || playerState == PlayerState.JUMPING)
 			ChangeState (PlayerState.BLOCKING);
 	}
 
