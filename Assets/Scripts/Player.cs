@@ -53,9 +53,16 @@ public class Player : MonoBehaviour
 
 	public Player opponent;
 
-	public Coroutine currentCombatCoroutine;
-
 	private float playerGotHitTime = .5f;
+
+	#pragma warning disable 0649
+	private Coroutine telegraphCoroutine;
+	private Coroutine attackCoroutine;
+	private Coroutine dashCoroutine;
+	private Coroutine hitCoroutine;
+
+	private Coroutine currentCombatCoroutine;
+	#pragma warning restore 0649
 
 	void Start ()
 	{
@@ -208,8 +215,6 @@ public class Player : MonoBehaviour
 			ChangeState (PlayerState.JUMPING);
 	}
 
-	private Coroutine telegraphCoroutine;
-
 	void Telegraph ()
 	{
 		InterruptCoroutine (telegraphCoroutine, _Telegraph ());
@@ -222,8 +227,6 @@ public class Player : MonoBehaviour
 		yield return new WaitForSeconds (telegraphTime);
 		ChangeState (PlayerState.ATTACKING);
 	}
-
-	private Coroutine attackCoroutine;
 
 	void Attack ()
 	{
@@ -301,8 +304,6 @@ public class Player : MonoBehaviour
 		return acceptableDistance;
 	}
 
-	private Coroutine dashCoroutine;
-
 	public void Dash()
 	{
 		InterruptCoroutine (dashCoroutine, _Dash ());
@@ -360,8 +361,6 @@ public class Player : MonoBehaviour
 
 		currentCombatCoroutine = currentCoroutine;
 	}
-
-	public Coroutine hitCoroutine;
 
 	public void CheckHit (Player otherPlayer)
 	{
