@@ -55,6 +55,8 @@ public class Player : MonoBehaviour
 
 	private float playerGotHitTime = .5f;
 
+	public Transform footTransform;
+
 	#pragma warning disable 0649
 	private Coroutine telegraphCoroutine;
 	private Coroutine attackCoroutine;
@@ -80,7 +82,7 @@ public class Player : MonoBehaviour
 		ChangeState (PlayerState.IDLE);
 	}
 
-	void OnDisable ()
+	void OnDestroy ()
 	{
 		input.OnReceiveAttackInput -= OnReceiveAttackInput;
 		input.OnReceiveDodgeInput -= OnReceiveDodgeInput;
