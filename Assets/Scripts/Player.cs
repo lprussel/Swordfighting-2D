@@ -9,6 +9,7 @@ public class Player : MonoBehaviour
 		BLOCKING,
 		TELEGRAPHING,
 		ATTACKING,
+		RECOILING,
 		DASHING,
 		JUMPING,
 		HIT,
@@ -55,13 +56,21 @@ public class Player : MonoBehaviour
 
 	private float playerGotHitTime = .5f;
 
+	private float recoilTime = .75f;
+
 	public Transform footTransform;
+
+	private float reposteTimer;
+	private float maxReposteTime = .25f;
+	[HideInInspector]
+	public bool canReposte;
 
 	#pragma warning disable 0649
 	private Coroutine telegraphCoroutine;
 	private Coroutine attackCoroutine;
 	private Coroutine dashCoroutine;
 	private Coroutine hitCoroutine;
+	private Coroutine recoilCoroutine;
 
 	private Coroutine currentCombatCoroutine;
 	#pragma warning restore 0649
@@ -111,6 +120,9 @@ public class Player : MonoBehaviour
 			case PlayerState.ATTACKING:
 				Attack ();
 				break;
+			case PlayerState.RECOILING:
+				Recoil (opponent);
+				break;
 			case PlayerState.DASHING:
 				Dash ();
 				break;
@@ -134,12 +146,23 @@ public class Player : MonoBehaviour
 				anim.CrossFade ("Idle");
 				break;
 			case PlayerState.BLOCKING:
+				if (reposteTimer < maxReposteTime)
+				{
+					reposteTimer += Time.deltaTime;
+					canReposte = true;
+				}
+				else
+					canReposte = false;
+				
 				rig.velocity = new Vector3 (Mathf.Lerp (rig.velocity.x, 0, Time.deltaTime * 10), rig.velocity.y, rig.velocity.z);
 				anim.CrossFade ("Block", .1f);
 				break;
 			case PlayerState.TELEGRAPHING:
 				break;
 			case PlayerState.ATTACKING:
+				break;
+			case PlayerState.RECOILING:
+				rig.velocity = new Vector3 (Mathf.Lerp (rig.velocity.x, 0, Time.deltaTime * 5), rig.velocity.y, rig.velocity.z);
 				break;
 			case PlayerState.DASHING:
 				break;
@@ -208,7 +231,10 @@ public class Player : MonoBehaviour
 	void OnBlockInputExit ()
 	{
 		if (playerState == PlayerState.BLOCKING)
+		{
+			reposteTimer = 0;
 			ChangeState (PlayerState.IDLE);
+		}
 	}
 
 	void OnReceiveJumpInput ()
@@ -242,7 +268,7 @@ public class Player : MonoBehaviour
 		rig.velocity = new Vector3 (0, 0, 0);
 		rig.useGravity = true;
 
-		string attackName = GetAttackName();
+		string attackName = GetAttackName ();
 		anim.Play (attackName);
 
 		Vector3 initialPosition = transform.position;
@@ -257,7 +283,7 @@ public class Player : MonoBehaviour
 		{
 			t += Time.fixedDeltaTime;
 			//rig.velocity = new Vector3 (transform.right.x * attackSpeed, rig.velocity.y, 0);
-			transform.position = Vector3.Lerp (initialPosition, initialPosition + new Vector3 (transform.right.x * attackDistance * distanceMult, 0, 0), attackCurve.Evaluate(t / attackTime));
+			transform.position = Vector3.Lerp (initialPosition, initialPosition + new Vector3 (transform.right.x * attackDistance * distanceMult, 0, 0), attackCurve.Evaluate (t / attackTime));
 			if ((t / attackTime) > .5f && !hitPlayerFlag)
 			{
 				RaycastHit[] hits = Physics.RaycastAll (transform.position, transform.right, attackDistance, standardMask, QueryTriggerInteraction.UseGlobal);
@@ -306,12 +332,12 @@ public class Player : MonoBehaviour
 		return acceptableDistance;
 	}
 
-	public void Dash()
+	public void Dash ()
 	{
 		InterruptCoroutine (dashCoroutine, _Dash ());
 	}
 
-	IEnumerator _Dash()
+	IEnumerator _Dash ()
 	{
 		float t = 0;
 		rig.velocity = new Vector3 (0, 0, 0);
@@ -330,7 +356,7 @@ public class Player : MonoBehaviour
 		{
 			t += Time.fixedDeltaTime;
 			//rig.velocity = new Vector3 (transform.right.x * attackSpeed, rig.velocity.y, 0);
-			transform.position = (Vector3.Lerp (initialPosition, initialPosition + new Vector3 (dashDistance * distanceMult * moveDirection, 0, 0), dashCurve.Evaluate(t / dashTime)));
+			transform.position = (Vector3.Lerp (initialPosition, initialPosition + new Vector3 (dashDistance * distanceMult * moveDirection, 0, 0), dashCurve.Evaluate (t / dashTime)));
 
 			yield return new WaitForFixedUpdate ();
 		}
@@ -374,7 +400,7 @@ public class Player : MonoBehaviour
 		bool wasBlocked = false;
 
 		if (playerState == PlayerState.BLOCKING && transform.right.x > 0 && otherPlayer.transform.position.x > transform.position.x ||
-			playerState == PlayerState.BLOCKING && transform.right.x < 0 && otherPlayer.transform.position.x < transform.position.x)
+		    playerState == PlayerState.BLOCKING && transform.right.x < 0 && otherPlayer.transform.position.x < transform.position.x)
 		{
 			wasBlocked = true;
 		}
@@ -385,15 +411,28 @@ public class Player : MonoBehaviour
 			anim.Play ("GotHit");
 			EffectsManager.instance.StartCoroutine (EffectsManager.instance.OnPlayerHit (otherPlayer, this));
 			AudioManager.instance.PlaySound (AudioManager.SoundSet.HIT);
+
+			int mult = otherPlayer.transform.position.x > transform.position.x ? -1 : 1;
+			rig.velocity = new Vector3 (25 * mult, 0, 0);
 		}
 		else
 		{
-			EffectsManager.instance.StartCoroutine (EffectsManager.instance.OnPlayerBlock (otherPlayer, this));
-			AudioManager.instance.PlaySound (AudioManager.SoundSet.BLOCK);
-		}
+			if (canReposte)
+			{
+				EffectsManager.instance.StartCoroutine (EffectsManager.instance.OnPlayerBlock (otherPlayer, this));
+				AudioManager.instance.PlaySound (AudioManager.SoundSet.BLOCK);
 
-		int mult = otherPlayer.transform.position.x > transform.position.x ? -1 : 1;
-		rig.velocity = new Vector3 (25 * mult, 0, 0);
+				otherPlayer.ChangeState (PlayerState.RECOILING);
+			}
+			else
+			{
+				EffectsManager.instance.StartCoroutine (EffectsManager.instance.OnPlayerBlock (otherPlayer, this));
+				AudioManager.instance.PlaySound (AudioManager.SoundSet.BLOCK);
+
+				int mult = otherPlayer.transform.position.x > transform.position.x ? -1 : 1;
+				rig.velocity = new Vector3 (25 * mult, 0, 0);
+			}
+		}
 	}
 
 	public void GotHit (Player otherPlayer)
@@ -404,6 +443,22 @@ public class Player : MonoBehaviour
 	private IEnumerator _GotHit (Player otherPlayer)
 	{
 		yield return new WaitForSeconds (playerGotHitTime);
+
+		ChangeState (PlayerState.IDLE);
+	}
+
+	public void Recoil (Player otherPlayer)
+	{
+		InterruptCoroutine (recoilCoroutine, _Recoil (otherPlayer));
+	}
+
+	private IEnumerator _Recoil (Player otherPlayer)
+	{
+		anim.Play ("GotHit");
+		int mult = otherPlayer.transform.position.x > transform.position.x ? -1 : 1;
+		rig.velocity = new Vector3 (25 * mult, 0, 0);
+
+		yield return new WaitForSeconds (recoilTime);
 
 		ChangeState (PlayerState.IDLE);
 	}
