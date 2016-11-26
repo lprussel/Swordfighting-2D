@@ -28,7 +28,7 @@ public class Player : MonoBehaviour
 
 	public AnimationCurve attackCurve;
 
-	private float telegraphTime = .4f;
+	private float telegraphTime = .35f;
 	private float attackEndDelay = .1f;
 
 	public AnimationCurve dashCurve;
