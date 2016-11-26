@@ -51,6 +51,10 @@ public class Player : MonoBehaviour
 	private float height = 1.5f;
 	private float jumpSpeed = 30f;
 
+	public Player otherPlayer;
+
+	public Coroutine currentCombatCoroutine;
+
 	void Start ()
 	{
 		rig = GetComponent<Rigidbody> ();
@@ -132,9 +136,7 @@ public class Player : MonoBehaviour
 				HandleMovement ();
 				break;
 			case PlayerState.HIT:
-				rig.velocity = new Vector3 (Mathf.Lerp (rig.velocity.x, 0, Time.deltaTime * 10), rig.velocity.y, rig.velocity.z);
-				if (rig.velocity.x == 0)
-					ChangeState (PlayerState.IDLE);
+				rig.velocity = new Vector3 (Mathf.Lerp (rig.velocity.x, 0, Time.deltaTime * 5), rig.velocity.y, rig.velocity.z);
 				break;
 			case PlayerState.CANT_MOVE:
 				rig.velocity = new Vector3 (Mathf.Lerp (rig.velocity.x, 0, Time.deltaTime * 5), rig.velocity.y, rig.velocity.z);
@@ -145,8 +147,9 @@ public class Player : MonoBehaviour
 	void HandleMovement ()
 	{
 		horizontalInput = input.controllerInput.x;
-		moveDirection = input.controllerInput.x > 0 ? 1 : -1;//(rig.velocity.x == 0) ? (transform.right.x > 0 ? 1 : -1) : (rig.velocity.x > 0 ? 1 : -1);
-		transform.right = input.mousePosition.x > transform.position.x ? Vector3.right : Vector3.left;
+		moveDirection = input.controllerInput.x == 0 ? (transform.right.x > 0 ? -1 : 1) : (input.controllerInput.x < 0 ? -1 : 1);//(rig.velocity.x == 0) ? (transform.right.x > 0 ? 1 : -1) : (rig.velocity.x > 0 ? 1 : -1);
+		//transform.right = input.mousePosition.x > transform.position.x ? Vector3.right : Vector3.left;
+		transform.right = otherPlayer.transform.position.x > transform.position.x ? Vector3.right : Vector3.left;
 
 		CheckGrounded ();
 
@@ -257,7 +260,7 @@ public class Player : MonoBehaviour
 					RaycastHit hit = hits [i];
 					if (hit.collider.tag == "Player" && hit.collider.gameObject != gameObject)
 					{
-						hit.collider.GetComponent<Player> ().GotHit (this);
+						hit.collider.GetComponent<Player> ()._GotHit (this);
 					}
 				}
 			}
@@ -336,6 +339,9 @@ public class Player : MonoBehaviour
 
 	void InterruptCoroutine (Coroutine currentCoroutine, IEnumerator newCoroutine)
 	{
+		if (currentCombatCoroutine != null)
+			StopCoroutine (currentCombatCoroutine);
+		
 		if (currentCoroutine == null)
 		{
 			currentCoroutine = StartCoroutine (newCoroutine);
@@ -345,12 +351,21 @@ public class Player : MonoBehaviour
 			StopCoroutine (currentCoroutine);
 			currentCoroutine = StartCoroutine (newCoroutine);
 		}
+
+		currentCombatCoroutine = currentCoroutine;
 	}
 
-	public void GotHit (Player otherPlayer)
+	public Coroutine hitCoroutine;
+
+	public void _GotHit (Player otherPlayer)
+	{
+		InterruptCoroutine (hitCoroutine, GotHit (otherPlayer));
+	}
+
+	private IEnumerator GotHit (Player otherPlayer)
 	{
 		if (playerState == PlayerState.DASHING)
-			return;
+			yield break;
 
 		bool wasBlocked = false;
 
@@ -374,5 +389,9 @@ public class Player : MonoBehaviour
 		
 		int mult = otherPlayer.transform.position.x > transform.position.x ? -1 : 1;
 		rig.velocity = new Vector3 (25 * mult, 0, 0);
+
+		yield return new WaitForSeconds (1);
+
+		ChangeState (PlayerState.IDLE);
 	}
 }

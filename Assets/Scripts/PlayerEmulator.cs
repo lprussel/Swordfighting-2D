@@ -9,7 +9,7 @@ public class PlayerEmulator : MonoBehaviour
 	public Player opponent;
 	private Vector3 vectorToOpponent;
 
-	private float attackRange = 3.0f;
+	private float attackRange = 5.0f;
 
 	private float jumpRange = 4.0f;
 
