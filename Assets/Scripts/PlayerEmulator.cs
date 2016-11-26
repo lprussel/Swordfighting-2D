@@ -11,7 +11,7 @@ public class PlayerEmulator : MonoBehaviour
 
 	private float attackRange = 5.0f;
 
-	private float jumpRange = 4.0f;
+	//private float jumpRange = 4.0f;
 
 	public enum AI_State
 	{

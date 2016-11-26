@@ -7,7 +7,6 @@ public class GameManager : MonoBehaviour
 	public static GameManager instance;
 
 	public Player[] players;
-	private int playerCount;
 
 	void Awake ()
 	{
@@ -17,7 +16,6 @@ public class GameManager : MonoBehaviour
 	void Start ()
 	{
 		players = FindObjectsOfType<Player> ();
-		playerCount = players.Length;
 	}
 
 	public void ResetGame ()

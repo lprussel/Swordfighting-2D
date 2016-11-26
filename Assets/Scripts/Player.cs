@@ -28,7 +28,7 @@ public class Player : MonoBehaviour
 
 	public AnimationCurve attackCurve;
 
-	private float telegraphTime = .25f;
+	private float telegraphTime = .4f;
 	private float attackEndDelay = .1f;
 
 	public AnimationCurve dashCurve;
@@ -87,8 +87,6 @@ public class Player : MonoBehaviour
 	{
 		if (newState == playerState)
 			return;
-
-		PlayerState previousState = playerState;
 
 		playerState = newState;
 
@@ -151,7 +149,6 @@ public class Player : MonoBehaviour
 	void HandleMovement ()
 	{
 		horizontalInput = input.controllerInput.x;
-		moveDirection = input.controllerInput.x == 0 ? (transform.right.x > 0 ? -1 : 1) : (input.controllerInput.x > 0 ? 1 : -1);//(rig.velocity.x == 0) ? (transform.right.x > 0 ? 1 : -1) : (rig.velocity.x > 0 ? 1 : -1);
 		//transform.right = input.mousePosition.x > transform.position.x ? Vector3.right : Vector3.left;
 		transform.right = opponent.transform.position.x > transform.position.x ? Vector3.right : Vector3.left;
 
@@ -323,6 +320,8 @@ public class Player : MonoBehaviour
 		rig.isKinematic = true;
 
 		AudioManager.instance.PlaySound (AudioManager.SoundSet.DASH);
+
+		moveDirection = input.controllerInput.x == 0 ? (transform.right.x > 0 ? -1 : 1) : (input.controllerInput.x > 0 ? 1 : -1);
 
 		while (t < dashTime)
 		{
