@@ -11,7 +11,7 @@ public class PlayerEmulator : MonoBehaviour
 
 	private float attackRange = 5.0f;
 
-	//private float jumpRange = 4.0f;
+	private float jumpRange = 10.0f;
 
 	public enum AI_State
 	{
@@ -40,13 +40,18 @@ public class PlayerEmulator : MonoBehaviour
 
 	void EmulateInput ()
 	{
-		if (!thisPlayer.grounded)
-			return;
-
 		if (vectorToOpponent.x > 0)
 			thisInput.mousePosition.x = transform.position.x + 5;
 		else if (vectorToOpponent.x < 0)
 			thisInput.mousePosition.x = transform.position.x - 5;
+
+		if (vectorToOpponent.x > -jumpRange && vectorToOpponent.x < jumpRange)
+		{
+			if (opponent.transform.position.y > transform.position.y + .25f)
+			{
+				thisInput.OnReceiveJumpInput ();
+			}
+		}
 
 		if (vectorToOpponent.x >= attackRange)
 		{
@@ -60,7 +65,7 @@ public class PlayerEmulator : MonoBehaviour
 		{
 			thisInput.controllerInput.x = 0;
 
-			if (thisPlayer.playerState != Player.PlayerState.IDLE)
+			if (thisPlayer.playerState != Player.PlayerState.IDLE || !thisPlayer.grounded)
 				return;
 
 			int rand = Random.Range (0, 5);
@@ -77,14 +82,6 @@ public class PlayerEmulator : MonoBehaviour
 				StartCoroutine (BlockSomeShit ());
 			}
 		}
-
-		//if (vectorToOpponent.x > -jumpRange && vectorToOpponent.x < jumpRange)
-		//{
-		//	if (opponent.transform.position.y > transform.position.y + 1f)
-		//	{
-		//		thisInput.OnReceiveJumpInput ();
-		//	}
-		//}
 	}
 
 	IEnumerator BlockSomeShit ()

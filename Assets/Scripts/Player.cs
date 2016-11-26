@@ -243,7 +243,7 @@ public class Player : MonoBehaviour
 
 		Vector3 initialPosition = transform.position;
 
-		float distanceMult = CalculateMoveDistance (attackDistance, standardMask);
+		float distanceMult = CalculateMoveDistance (transform.right, attackDistance, standardMask);
 
 		bool hitPlayerFlag = false;
 
@@ -287,12 +287,12 @@ public class Player : MonoBehaviour
 		return name;
 	}
 
-	float CalculateMoveDistance (float moveDistance, LayerMask mask)
+	float CalculateMoveDistance (Vector3 direction, float moveDistance, LayerMask mask)
 	{
 		float acceptableDistance;
 		RaycastHit hit;
 
-		if (Physics.Raycast (transform.position, transform.right, out hit, moveDistance, mask, QueryTriggerInteraction.UseGlobal))
+		if (Physics.Raycast (transform.position, direction.normalized, out hit, moveDistance, mask, QueryTriggerInteraction.UseGlobal))
 		{
 			acceptableDistance = (hit.point - transform.position).magnitude / attackDistance;
 		}
@@ -316,13 +316,13 @@ public class Player : MonoBehaviour
 
 		Vector3 initialPosition = transform.position;
 
-		float distanceMult = CalculateMoveDistance (dashDistance, ignorePlayerMask);
-
 		rig.isKinematic = true;
 
 		AudioManager.instance.PlaySound (AudioManager.SoundSet.DASH);
 
 		moveDirection = input.controllerInput.x == 0 ? (transform.right.x > 0 ? -1 : 1) : (input.controllerInput.x > 0 ? 1 : -1);
+
+		float distanceMult = CalculateMoveDistance (Vector3.right * moveDirection, dashDistance, ignorePlayerMask);
 
 		while (t < dashTime)
 		{
