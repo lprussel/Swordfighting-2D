@@ -20,7 +20,7 @@ public class Player : MonoBehaviour
 
 	private Rigidbody rig;
 
-	private float moveSpeed = 5f;
+	private float moveSpeed = 8f;
 	private int moveDirection;
 
 	//private float attackSpeed = 100f;
@@ -48,7 +48,6 @@ public class Player : MonoBehaviour
 	public LayerMask standardMask;
 	public LayerMask ignorePlayerMask;
 
-	[HideInInspector]
 	public bool grounded;
 	private float height = 1.5f;
 	private float jumpSpeed = 30f;
@@ -97,8 +96,8 @@ public class Player : MonoBehaviour
 
 		ChangeState (PlayerState.IDLE);
 
-		anim ["RunForward"].speed = 1f;
-		anim ["RunBackward"].speed = -1f;
+		anim ["RunForward"].speed = 1.5f;
+		anim ["RunBackward"].speed = -1.5f;
 		anim ["Dash"].speed = 2f;
 	}
 
@@ -112,7 +111,7 @@ public class Player : MonoBehaviour
 		input.OnBlockInputExit -= OnBlockInputExit;
 	}
 
-	void ChangeState (PlayerState newState)
+	public void ChangeState (PlayerState newState)
 	{
 		if (newState == playerState)
 			return;
@@ -154,20 +153,20 @@ public class Player : MonoBehaviour
 		{
 			case PlayerState.IDLE:
 				HandleMovement ();
-				if (Mathf.Abs (rig.velocity.y) > 0)
+				if (Mathf.Abs (rig.velocity.y) > .05f)
 				{
 					if (rig.velocity.y > 0)
 						anim.Play ("Jump");
 					else
 					{
 						if (rig.velocity.x > 0 && transform.right.x > 0)
-							anim.CrossFade ("FallForward");
+							anim.Play ("FallForward");
 						else if (rig.velocity.x < 0 && transform.right.x < 0)
-							anim.CrossFade ("FallForward");
+							anim.Play ("FallForward");
 						else if (rig.velocity.x > 0 && transform.right.x < 0)
-							anim.CrossFade ("FallBackward");
+							anim.Play ("FallBackward");
 						else if (rig.velocity.x < 0 && transform.right.x > 0)
-							anim.CrossFade ("FallBackward");
+							anim.Play ("FallBackward");
 					}
 
 					return;
@@ -185,7 +184,7 @@ public class Player : MonoBehaviour
 						anim.CrossFade ("RunBackward");
 				}
 				else
-					anim.CrossFade ("Idle");
+					anim.CrossFade ("Idle", .5f);
 				break;
 			case PlayerState.BLOCKING:
 				if (reposteTimer < maxReposteTime)
@@ -197,7 +196,7 @@ public class Player : MonoBehaviour
 					canReposte = false;
 				
 				rig.velocity = new Vector3 (Mathf.Lerp (rig.velocity.x, 0, Time.deltaTime * 10), rig.velocity.y, rig.velocity.z);
-				anim.CrossFade ("Block", .1f);
+				anim.Play ("Block");
 				break;
 			case PlayerState.TELEGRAPHING:
 				break;
@@ -210,20 +209,20 @@ public class Player : MonoBehaviour
 				break;
 			case PlayerState.JUMPING:
 				HandleMovement ();
-				if (Mathf.Abs (rig.velocity.y) > 0)
+				if (Mathf.Abs (rig.velocity.y) > .05f)
 				{
 					if (rig.velocity.y > 0)
 						anim.Play ("Jump");
 					else
 					{
 						if (rig.velocity.x > 0 && transform.right.x > 0)
-							anim.CrossFade ("FallForward");
+							anim.Play ("FallForward");
 						else if (rig.velocity.x < 0 && transform.right.x < 0)
-							anim.CrossFade ("FallForward");
+							anim.Play ("FallForward");
 						else if (rig.velocity.x > 0 && transform.right.x < 0)
-							anim.CrossFade ("FallBackward");
+							anim.Play ("FallBackward");
 						else if (rig.velocity.x < 0 && transform.right.x > 0)
-							anim.CrossFade ("FallBackward");
+							anim.Play ("FallBackward");
 					}
 
 					return;
