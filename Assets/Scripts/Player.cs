@@ -40,7 +40,7 @@ public class Player : MonoBehaviour
 
 	private float horizontalInput;
 
-	private Animation anim;
+	public Animation anim;
 
 	private MultiplayerInput input;
 
@@ -82,7 +82,7 @@ public class Player : MonoBehaviour
 	void Start ()
 	{
 		rig = GetComponent<Rigidbody> ();
-		anim = GetComponent<Animation> ();
+		//anim = GetComponent<Animation> ();
 		input = GetComponent<MultiplayerInput> ();
 
 		input.OnReceiveAttackInput += OnReceiveAttackInput;
