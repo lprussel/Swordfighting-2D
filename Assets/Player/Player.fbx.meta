@@ -69,6 +69,10 @@ ModelImporter:
     7400006: Slash1
     7400008: Slash2
     7400010: Slash3
+    7400012: Block
+    7400014: GotHit
+    7400016: RunForward
+    7400018: RunBackward
     9500000: //RootNode
     11100000: //RootNode
     13700000: Cube
@@ -88,7 +92,7 @@ ModelImporter:
     animationImportWarnings: 
     animationRetargetingWarnings: 
     animationDoRetargetingWarnings: 0
-    animationCompression: 1
+    animationCompression: 0
     animationRotationError: 0.5
     animationPositionError: 0.5
     animationScaleError: 0.5
@@ -172,11 +176,11 @@ ModelImporter:
       takeName: Armature|ArmatureAction
       firstFrame: 0
       lastFrame: 20
-      wrapMode: 0
+      wrapMode: 2
       orientationOffsetY: 0
       level: 0
       cycleOffset: 0
-      loop: 0
+      loop: 1
       hasAdditiveReferencePose: 0
       loopTime: 0
       loopBlend: 0
@@ -465,6 +469,294 @@ ModelImporter:
       level: 0
       cycleOffset: 0
       loop: 0
+      hasAdditiveReferencePose: 0
+      loopTime: 0
+      loopBlend: 0
+      loopBlendOrientation: 0
+      loopBlendPositionY: 0
+      loopBlendPositionXZ: 0
+      keepOriginalOrientation: 0
+      keepOriginalPositionY: 1
+      keepOriginalPositionXZ: 0
+      heightFromFeet: 0
+      mirror: 0
+      bodyMask: 01000000010000000100000001000000010000000100000001000000010000000100000001000000010000000100000001000000
+      curves: []
+      events: []
+      transformMask:
+      - path: 
+        weight: 1
+      - path: Armature
+        weight: 1
+      - path: Armature/Bone
+        weight: 1
+      - path: Armature/Bone/Bone.001
+        weight: 1
+      - path: Armature/Bone/Bone.001/Bone.003
+        weight: 1
+      - path: Armature/Bone/Bone.001/Bone.003/Bone.003_end
+        weight: 1
+      - path: Armature/Bone/Bone.001/Bone.005
+        weight: 1
+      - path: Armature/Bone/Bone.001/Bone.005/Bone.006
+        weight: 1
+      - path: Armature/Bone/Bone.001/Bone.005/Bone.006/Bone.016
+        weight: 1
+      - path: Armature/Bone/Bone.001/Bone.005/Bone.006/Bone.016/Bone.016_end
+        weight: 1
+      - path: Armature/Bone/Bone.001/Bone.008
+        weight: 1
+      - path: Armature/Bone/Bone.001/Bone.008/Bone.009
+        weight: 1
+      - path: Armature/Bone/Bone.001/Bone.008/Bone.009/Bone.009_end
+        weight: 1
+      - path: Armature/Bone.011
+        weight: 1
+      - path: Armature/Bone.011/Bone.012
+        weight: 1
+      - path: Armature/Bone.011/Bone.012/Bone.012_end
+        weight: 1
+      - path: Armature/Bone.014
+        weight: 1
+      - path: Armature/Bone.014/Bone.015
+        weight: 1
+      - path: Armature/Bone.014/Bone.015/Bone.015_end
+        weight: 1
+      - path: Cube
+        weight: 1
+      - path: Cube.001
+        weight: 1
+      - path: Plane
+        weight: 1
+      maskType: 0
+      maskSource: {instanceID: 0}
+      additiveReferencePoseFrame: 0
+    - serializedVersion: 16
+      name: Block
+      takeName: Armature|ArmatureAction
+      firstFrame: 115
+      lastFrame: 120
+      wrapMode: 2
+      orientationOffsetY: 0
+      level: 0
+      cycleOffset: 0
+      loop: 1
+      hasAdditiveReferencePose: 0
+      loopTime: 0
+      loopBlend: 0
+      loopBlendOrientation: 0
+      loopBlendPositionY: 0
+      loopBlendPositionXZ: 0
+      keepOriginalOrientation: 0
+      keepOriginalPositionY: 1
+      keepOriginalPositionXZ: 0
+      heightFromFeet: 0
+      mirror: 0
+      bodyMask: 01000000010000000100000001000000010000000100000001000000010000000100000001000000010000000100000001000000
+      curves: []
+      events: []
+      transformMask:
+      - path: 
+        weight: 1
+      - path: Armature
+        weight: 1
+      - path: Armature/Bone
+        weight: 1
+      - path: Armature/Bone/Bone.001
+        weight: 1
+      - path: Armature/Bone/Bone.001/Bone.003
+        weight: 1
+      - path: Armature/Bone/Bone.001/Bone.003/Bone.003_end
+        weight: 1
+      - path: Armature/Bone/Bone.001/Bone.005
+        weight: 1
+      - path: Armature/Bone/Bone.001/Bone.005/Bone.006
+        weight: 1
+      - path: Armature/Bone/Bone.001/Bone.005/Bone.006/Bone.016
+        weight: 1
+      - path: Armature/Bone/Bone.001/Bone.005/Bone.006/Bone.016/Bone.016_end
+        weight: 1
+      - path: Armature/Bone/Bone.001/Bone.008
+        weight: 1
+      - path: Armature/Bone/Bone.001/Bone.008/Bone.009
+        weight: 1
+      - path: Armature/Bone/Bone.001/Bone.008/Bone.009/Bone.009_end
+        weight: 1
+      - path: Armature/Bone.011
+        weight: 1
+      - path: Armature/Bone.011/Bone.012
+        weight: 1
+      - path: Armature/Bone.011/Bone.012/Bone.012_end
+        weight: 1
+      - path: Armature/Bone.014
+        weight: 1
+      - path: Armature/Bone.014/Bone.015
+        weight: 1
+      - path: Armature/Bone.014/Bone.015/Bone.015_end
+        weight: 1
+      - path: Cube
+        weight: 1
+      - path: Cube.001
+        weight: 1
+      - path: Plane
+        weight: 1
+      maskType: 0
+      maskSource: {instanceID: 0}
+      additiveReferencePoseFrame: 0
+    - serializedVersion: 16
+      name: GotHit
+      takeName: Armature|ArmatureAction
+      firstFrame: 125
+      lastFrame: 140
+      wrapMode: 8
+      orientationOffsetY: 0
+      level: 0
+      cycleOffset: 0
+      loop: 0
+      hasAdditiveReferencePose: 0
+      loopTime: 0
+      loopBlend: 0
+      loopBlendOrientation: 0
+      loopBlendPositionY: 0
+      loopBlendPositionXZ: 0
+      keepOriginalOrientation: 0
+      keepOriginalPositionY: 1
+      keepOriginalPositionXZ: 0
+      heightFromFeet: 0
+      mirror: 0
+      bodyMask: 01000000010000000100000001000000010000000100000001000000010000000100000001000000010000000100000001000000
+      curves: []
+      events: []
+      transformMask:
+      - path: 
+        weight: 1
+      - path: Armature
+        weight: 1
+      - path: Armature/Bone
+        weight: 1
+      - path: Armature/Bone/Bone.001
+        weight: 1
+      - path: Armature/Bone/Bone.001/Bone.003
+        weight: 1
+      - path: Armature/Bone/Bone.001/Bone.003/Bone.003_end
+        weight: 1
+      - path: Armature/Bone/Bone.001/Bone.005
+        weight: 1
+      - path: Armature/Bone/Bone.001/Bone.005/Bone.006
+        weight: 1
+      - path: Armature/Bone/Bone.001/Bone.005/Bone.006/Bone.016
+        weight: 1
+      - path: Armature/Bone/Bone.001/Bone.005/Bone.006/Bone.016/Bone.016_end
+        weight: 1
+      - path: Armature/Bone/Bone.001/Bone.008
+        weight: 1
+      - path: Armature/Bone/Bone.001/Bone.008/Bone.009
+        weight: 1
+      - path: Armature/Bone/Bone.001/Bone.008/Bone.009/Bone.009_end
+        weight: 1
+      - path: Armature/Bone.011
+        weight: 1
+      - path: Armature/Bone.011/Bone.012
+        weight: 1
+      - path: Armature/Bone.011/Bone.012/Bone.012_end
+        weight: 1
+      - path: Armature/Bone.014
+        weight: 1
+      - path: Armature/Bone.014/Bone.015
+        weight: 1
+      - path: Armature/Bone.014/Bone.015/Bone.015_end
+        weight: 1
+      - path: Cube
+        weight: 1
+      - path: Cube.001
+        weight: 1
+      - path: Plane
+        weight: 1
+      maskType: 0
+      maskSource: {instanceID: 0}
+      additiveReferencePoseFrame: 0
+    - serializedVersion: 16
+      name: RunForward
+      takeName: Armature|ArmatureAction
+      firstFrame: 145
+      lastFrame: 164
+      wrapMode: 2
+      orientationOffsetY: 0
+      level: 0
+      cycleOffset: 0
+      loop: 1
+      hasAdditiveReferencePose: 0
+      loopTime: 0
+      loopBlend: 0
+      loopBlendOrientation: 0
+      loopBlendPositionY: 0
+      loopBlendPositionXZ: 0
+      keepOriginalOrientation: 0
+      keepOriginalPositionY: 1
+      keepOriginalPositionXZ: 0
+      heightFromFeet: 0
+      mirror: 0
+      bodyMask: 01000000010000000100000001000000010000000100000001000000010000000100000001000000010000000100000001000000
+      curves: []
+      events: []
+      transformMask:
+      - path: 
+        weight: 1
+      - path: Armature
+        weight: 1
+      - path: Armature/Bone
+        weight: 1
+      - path: Armature/Bone/Bone.001
+        weight: 1
+      - path: Armature/Bone/Bone.001/Bone.003
+        weight: 1
+      - path: Armature/Bone/Bone.001/Bone.003/Bone.003_end
+        weight: 1
+      - path: Armature/Bone/Bone.001/Bone.005
+        weight: 1
+      - path: Armature/Bone/Bone.001/Bone.005/Bone.006
+        weight: 1
+      - path: Armature/Bone/Bone.001/Bone.005/Bone.006/Bone.016
+        weight: 1
+      - path: Armature/Bone/Bone.001/Bone.005/Bone.006/Bone.016/Bone.016_end
+        weight: 1
+      - path: Armature/Bone/Bone.001/Bone.008
+        weight: 1
+      - path: Armature/Bone/Bone.001/Bone.008/Bone.009
+        weight: 1
+      - path: Armature/Bone/Bone.001/Bone.008/Bone.009/Bone.009_end
+        weight: 1
+      - path: Armature/Bone.011
+        weight: 1
+      - path: Armature/Bone.011/Bone.012
+        weight: 1
+      - path: Armature/Bone.011/Bone.012/Bone.012_end
+        weight: 1
+      - path: Armature/Bone.014
+        weight: 1
+      - path: Armature/Bone.014/Bone.015
+        weight: 1
+      - path: Armature/Bone.014/Bone.015/Bone.015_end
+        weight: 1
+      - path: Cube
+        weight: 1
+      - path: Cube.001
+        weight: 1
+      - path: Plane
+        weight: 1
+      maskType: 0
+      maskSource: {instanceID: 0}
+      additiveReferencePoseFrame: 0
+    - serializedVersion: 16
+      name: RunBackward
+      takeName: Armature|ArmatureAction
+      firstFrame: 145
+      lastFrame: 164
+      wrapMode: 2
+      orientationOffsetY: 0
+      level: 0
+      cycleOffset: 0
+      loop: 1
       hasAdditiveReferencePose: 0
       loopTime: 0
       loopBlend: 0

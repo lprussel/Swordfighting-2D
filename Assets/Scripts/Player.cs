@@ -20,7 +20,7 @@ public class Player : MonoBehaviour
 
 	private Rigidbody rig;
 
-	private float moveSpeed = 3f;
+	private float moveSpeed = 5f;
 	private int moveDirection;
 
 	//private float attackSpeed = 100f;
@@ -41,6 +41,7 @@ public class Player : MonoBehaviour
 	private float horizontalInput;
 
 	public Animation anim;
+	public Animation slashEffect;
 
 	private MultiplayerInput input;
 
@@ -95,6 +96,9 @@ public class Player : MonoBehaviour
 		health = maxHealth;
 
 		ChangeState (PlayerState.IDLE);
+
+		anim ["RunForward"].speed = 1f;
+		anim ["RunBackward"].speed = -1f;
 	}
 
 	void OnDestroy ()
@@ -149,7 +153,19 @@ public class Player : MonoBehaviour
 		{
 			case PlayerState.IDLE:
 				HandleMovement ();
-				anim.CrossFade ("Idle");
+				if (Mathf.Abs (rig.velocity.x) > 0)
+				{
+					if (rig.velocity.x > 0 && transform.right.x > 0)
+						anim.CrossFade ("RunForward");
+					else if (rig.velocity.x < 0 && transform.right.x < 0)
+						anim.CrossFade ("RunForward");
+					else if (rig.velocity.x > 0 && transform.right.x < 0)
+						anim.CrossFade ("RunBackward");
+					else if (rig.velocity.x < 0 && transform.right.x > 0)
+						anim.CrossFade ("RunBackward");
+				}
+				else
+					anim.CrossFade ("Idle");
 				break;
 			case PlayerState.BLOCKING:
 				if (reposteTimer < maxReposteTime)
@@ -276,6 +292,7 @@ public class Player : MonoBehaviour
 
 		string attackName = GetAttackName ();
 		anim.Play (attackName);
+		slashEffect.Play (attackName);
 
 		Vector3 initialPosition = transform.position;
 
@@ -414,6 +431,7 @@ public class Player : MonoBehaviour
 		if (!wasBlocked)
 		{
 			ChangeState (PlayerState.HIT);
+			anim.Stop ();
 			anim.Play ("GotHit");
 			EffectsManager.instance.StartCoroutine (EffectsManager.instance.OnPlayerHit (otherPlayer, this));
 			AudioManager.instance.PlaySound (AudioManager.SoundSet.HIT);
