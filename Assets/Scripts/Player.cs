@@ -99,6 +99,7 @@ public class Player : MonoBehaviour
 
 		anim ["RunForward"].speed = 1f;
 		anim ["RunBackward"].speed = -1f;
+		anim ["Dash"].speed = 2f;
 	}
 
 	void OnDestroy ()
@@ -153,6 +154,25 @@ public class Player : MonoBehaviour
 		{
 			case PlayerState.IDLE:
 				HandleMovement ();
+				if (Mathf.Abs (rig.velocity.y) > 0)
+				{
+					if (rig.velocity.y > 0)
+						anim.Play ("Jump");
+					else
+					{
+						if (rig.velocity.x > 0 && transform.right.x > 0)
+							anim.CrossFade ("FallForward");
+						else if (rig.velocity.x < 0 && transform.right.x < 0)
+							anim.CrossFade ("FallForward");
+						else if (rig.velocity.x > 0 && transform.right.x < 0)
+							anim.CrossFade ("FallBackward");
+						else if (rig.velocity.x < 0 && transform.right.x > 0)
+							anim.CrossFade ("FallBackward");
+					}
+
+					return;
+				}
+				
 				if (Mathf.Abs (rig.velocity.x) > 0)
 				{
 					if (rig.velocity.x > 0 && transform.right.x > 0)
@@ -190,6 +210,24 @@ public class Player : MonoBehaviour
 				break;
 			case PlayerState.JUMPING:
 				HandleMovement ();
+				if (Mathf.Abs (rig.velocity.y) > 0)
+				{
+					if (rig.velocity.y > 0)
+						anim.Play ("Jump");
+					else
+					{
+						if (rig.velocity.x > 0 && transform.right.x > 0)
+							anim.CrossFade ("FallForward");
+						else if (rig.velocity.x < 0 && transform.right.x < 0)
+							anim.CrossFade ("FallForward");
+						else if (rig.velocity.x > 0 && transform.right.x < 0)
+							anim.CrossFade ("FallBackward");
+						else if (rig.velocity.x < 0 && transform.right.x > 0)
+							anim.CrossFade ("FallBackward");
+					}
+
+					return;
+				}
 				break;
 			case PlayerState.HIT:
 				rig.velocity = new Vector3 (Mathf.Lerp (rig.velocity.x, 0, Time.deltaTime * 5), rig.velocity.y, rig.velocity.z);
@@ -291,6 +329,7 @@ public class Player : MonoBehaviour
 		rig.useGravity = true;
 
 		string attackName = GetAttackName ();
+		anim.Stop ();
 		anim.Play (attackName);
 		slashEffect.Play (attackName);
 
@@ -364,6 +403,9 @@ public class Player : MonoBehaviour
 	{
 		float t = 0;
 		rig.velocity = new Vector3 (0, 0, 0);
+
+		anim.Stop ();
+		anim.Play ("Dash");
 
 		Vector3 initialPosition = transform.position;
 
