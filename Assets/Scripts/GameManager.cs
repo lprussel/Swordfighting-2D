@@ -25,8 +25,15 @@ public class GameManager : MonoBehaviour
 
 	IEnumerator _PlayerWon ()
 	{
-		Time.timeScale = .25f;
-		yield return new WaitForSeconds (1);
+		float t = 0;
+		float maxT = 1;
+
+		while (t < maxT)
+		{
+			t += Time.deltaTime;
+			Time.timeScale = Mathf.Lerp(.1f, 1f, t / maxT);
+			yield return null;
+		}
 		Time.timeScale = 1f;
 		ResetGame ();
 	}

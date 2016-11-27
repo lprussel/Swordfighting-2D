@@ -65,9 +65,9 @@ public class Player : MonoBehaviour
 	[HideInInspector]
 	public bool canReposte;
 
-	public int health = 10;
 	[HideInInspector]
-	public int maxHealth = 10;
+	public int health = 5;
+	public static int maxHealth = 5;
 
 	#pragma warning disable 0649
 	private Coroutine telegraphCoroutine;
@@ -451,15 +451,18 @@ public class Player : MonoBehaviour
 		if (health > 1)
 		{
 			health--;
+
+			yield return new WaitForSeconds (playerGotHitTime);
+
+			ChangeState (PlayerState.IDLE);
 		}
 		else
 		{
 			health--;
+			yield return null;
+			ChangeState (PlayerState.CANT_MOVE);
 			GameManager.instance.PlayerWon ();
 		}
-		yield return new WaitForSeconds (playerGotHitTime);
-
-		ChangeState (PlayerState.IDLE);
 	}
 
 	public void Recoil (Player otherPlayer)
