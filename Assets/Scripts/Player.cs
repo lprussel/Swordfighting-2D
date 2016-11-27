@@ -420,7 +420,7 @@ public class Player : MonoBehaviour
 			if (canReposte)
 			{
 				EffectsManager.instance.StartCoroutine (EffectsManager.instance.OnPlayerBlock (otherPlayer, this));
-				AudioManager.instance.PlaySound (AudioManager.SoundSet.BLOCK);
+				AudioManager.instance.PlaySound (AudioManager.SoundSet.REPOSTE);
 
 				otherPlayer.ChangeState (PlayerState.RECOILING);
 			}

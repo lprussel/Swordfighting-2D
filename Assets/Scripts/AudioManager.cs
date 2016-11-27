@@ -9,6 +9,7 @@ public class AudioManager : MonoBehaviour
 	public AudioClip hitSound;
 	public AudioClip blockSound;
 	public AudioClip dashSound;
+	public AudioClip reposteSound;
 
 	public AudioSource source;
 
@@ -17,6 +18,7 @@ public class AudioManager : MonoBehaviour
 		SLASH,
 		HIT,
 		BLOCK,
+		REPOSTE,
 		DASH
 	}
 
@@ -41,6 +43,9 @@ public class AudioManager : MonoBehaviour
 				break;
 			case SoundSet.DASH:
 				soundToPlay = dashSound;
+				break;
+			case SoundSet.REPOSTE:
+				soundToPlay = reposteSound;
 				break;
 		}
 
