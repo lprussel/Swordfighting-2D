@@ -18,7 +18,7 @@ public class KillFloor : MonoBehaviour
 	{
 		if (col.tag == "Player")
 		{
-			GameManager.instance.ResetGame ();
+			GameManager.instance.PlayerWon ();
 		}
 	}
 }

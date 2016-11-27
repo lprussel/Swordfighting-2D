@@ -65,6 +65,10 @@ public class Player : MonoBehaviour
 	[HideInInspector]
 	public bool canReposte;
 
+	public int health = 10;
+	[HideInInspector]
+	public int maxHealth = 10;
+
 	#pragma warning disable 0649
 	private Coroutine telegraphCoroutine;
 	private Coroutine attackCoroutine;
@@ -87,6 +91,8 @@ public class Player : MonoBehaviour
 
 		input.OnBlockInputEnter += OnBlockInputEnter;
 		input.OnBlockInputExit += OnBlockInputExit;
+
+		health = maxHealth;
 
 		ChangeState (PlayerState.IDLE);
 	}
@@ -442,6 +448,15 @@ public class Player : MonoBehaviour
 
 	private IEnumerator _GotHit (Player otherPlayer)
 	{
+		if (health > 1)
+		{
+			health--;
+		}
+		else
+		{
+			health--;
+			GameManager.instance.PlayerWon ();
+		}
 		yield return new WaitForSeconds (playerGotHitTime);
 
 		ChangeState (PlayerState.IDLE);
