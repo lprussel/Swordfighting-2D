@@ -27,6 +27,9 @@ ModelImporter:
     100038: Cube.001
     100040: Plane
     100042: //RootNode
+    100044: Circle
+    100046: Bone.017
+    100048: Bone.017_end
     400000: Armature
     400002: Bone
     400004: Bone.001
@@ -49,11 +52,17 @@ ModelImporter:
     400038: Cube.001
     400040: Plane
     400042: //RootNode
+    400044: Circle
+    400046: Bone.017
+    400048: Bone.017_end
     2300000: Plane
+    2300002: Circle
     3300000: Plane
+    3300002: Circle
     4300000: Plane
     4300002: Cube.001
     4300004: Cube
+    4300006: Circle
     7400000: Armature|ArmatureAction
     7400002: Idle
     7400004: Telegraph
@@ -64,6 +73,7 @@ ModelImporter:
     11100000: //RootNode
     13700000: Cube
     13700002: Cube.001
+    13700004: Circle
   materials:
     importMaterials: 1
     materialName: 0
