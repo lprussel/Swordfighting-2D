@@ -40,7 +40,7 @@ public class MultiplayerInput : MonoBehaviour
 
 			MathUtilities.LinePlaneIntersection (cameraPosition, mouseVector, Vector3.zero, -Vector3.forward, out mousePosition);
 
-			if (Input.GetKeyDown (KeyCode.K))
+			if (Input.GetKeyDown (KeyCode.L))
 			{
 				OnReceiveDodgeInput ();
 			}
@@ -48,11 +48,11 @@ public class MultiplayerInput : MonoBehaviour
 			{
 				OnReceiveAttackInput ();
 			}
-			if (Input.GetKeyDown (KeyCode.L))
+			if (Input.GetKeyDown (KeyCode.K))
 			{
 				OnBlockInputEnter ();
 			}
-			if (Input.GetKeyUp (KeyCode.L))
+			if (Input.GetKeyUp (KeyCode.K))
 			{
 				OnBlockInputExit ();
 			}
