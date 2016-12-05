@@ -49,7 +49,7 @@ public class Player : MonoBehaviour
 	public LayerMask ignorePlayerMask;
 
 	public bool grounded;
-	private float height = 1.5f;
+	private float groundedHeight = 0.5f;
 	private float jumpSpeed = 30f;
 
 	public Player opponent;
@@ -153,7 +153,7 @@ public class Player : MonoBehaviour
 		{
 			case PlayerState.IDLE:
 				HandleMovement ();
-				if (Mathf.Abs (rig.velocity.y) > .05f)
+				if (Mathf.Abs (rig.velocity.y) > .05f && !grounded)
 				{
 					if (rig.velocity.y > 0)
 						anim.Play ("Jump");
@@ -171,8 +171,7 @@ public class Player : MonoBehaviour
 
 					return;
 				}
-				
-				if (Mathf.Abs (rig.velocity.x) > 0)
+				else if (grounded && Mathf.Abs (rig.velocity.x) > 0)
 				{
 					if (rig.velocity.x > 0 && transform.right.x > 0)
 						anim.CrossFade ("RunForward");
@@ -259,7 +258,7 @@ public class Player : MonoBehaviour
 	{
 		RaycastHit hit;
 
-		if (Physics.Raycast (transform.position, -transform.up, out hit, height, ignorePlayerMask, QueryTriggerInteraction.UseGlobal))
+		if (Physics.Raycast (footTransform.position, -transform.up, out hit, groundedHeight, ignorePlayerMask, QueryTriggerInteraction.UseGlobal))
 		{
 			grounded = true;
 			if (playerState == PlayerState.JUMPING)
