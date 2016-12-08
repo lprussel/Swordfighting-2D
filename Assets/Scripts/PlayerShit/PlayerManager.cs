@@ -25,6 +25,8 @@ public class PlayerManager : MonoBehaviour, IHittable
     }
     public FacingDirection facingDirection;
 
+    private MultiplayerInput input;
+
     private Rigidbody rig;
 
 	private float moveSpeed = 8f;
@@ -46,8 +48,6 @@ public class PlayerManager : MonoBehaviour, IHittable
 	private float dashEndDelay = .01f;
 
 	private float horizontalInput;
-
-	private MultiplayerInput input;
 
 	public LayerMask standardMask;
 	public LayerMask ignorePlayerMask;
@@ -139,7 +139,8 @@ public class PlayerManager : MonoBehaviour, IHittable
 		switch (newState)
 		{
 			case PlayerState.IDLE:
-				break;
+                reposteTimer = 0;
+                break;
 			case PlayerState.BLOCKING:
 				break;
 			case PlayerState.TELEGRAPHING:
@@ -239,8 +240,10 @@ public class PlayerManager : MonoBehaviour, IHittable
 
 	void OnReceiveAttackInput ()
 	{
-		if (playerState == PlayerState.IDLE || playerState == PlayerState.JUMPING)
-			ChangeState (PlayerState.TELEGRAPHING);
+        if (playerState == PlayerState.IDLE || playerState == PlayerState.JUMPING)
+        {
+            ChangeState(PlayerState.TELEGRAPHING);
+        }
 	}
 
 	void OnReceiveDodgeInput ()
@@ -259,7 +262,6 @@ public class PlayerManager : MonoBehaviour, IHittable
 	{
 		if (playerState == PlayerState.BLOCKING)
 		{
-			reposteTimer = 0;
 			ChangeState (PlayerState.IDLE);
 		}
 	}
@@ -272,21 +274,22 @@ public class PlayerManager : MonoBehaviour, IHittable
 
 	void Telegraph ()
 	{
-		InterruptCoroutine (telegraphCoroutine, _Telegraph ());
+        OnTelegraph();
+        InterruptCoroutine (telegraphCoroutine, _Telegraph ());
 	}
 
 	IEnumerator _Telegraph ()
 	{
 		rig.useGravity = false;
 		rig.velocity = new Vector3 (0, 0, 0);
-		OnTelegraph ();
 		yield return new WaitForSeconds (telegraphTime);
 		ChangeState (PlayerState.ATTACKING);
 	}
 
 	void Attack ()
 	{
-		InterruptCoroutine (attackCoroutine, _Attack ());
+        OnAttack();
+        InterruptCoroutine (attackCoroutine, _Attack ());
 	}
 
 	IEnumerator _Attack ()
@@ -294,8 +297,6 @@ public class PlayerManager : MonoBehaviour, IHittable
 		float t = 0;
 		rig.velocity = new Vector3 (0, 0, 0);
 		rig.useGravity = true;
-
-		OnAttack ();
 
 		Vector3 initialPosition = transform.position;
 
@@ -353,15 +354,14 @@ public class PlayerManager : MonoBehaviour, IHittable
 
 	public void Dash ()
 	{
-		InterruptCoroutine (dashCoroutine, _Dash ());
+        OnDash();
+        InterruptCoroutine (dashCoroutine, _Dash ());
 	}
 
 	IEnumerator _Dash ()
 	{
 		float t = 0;
 		rig.velocity = new Vector3 (0, 0, 0);
-
-		OnDash ();
 
 		Vector3 initialPosition = transform.position;
 
@@ -429,7 +429,6 @@ public class PlayerManager : MonoBehaviour, IHittable
 		if (!wasBlocked)
 		{
 			ChangeState (PlayerState.HIT);
-			OnHit ();
 			EffectsManager.instance.StartCoroutine (EffectsManager.instance.OnPlayerHit (attackingPlayer, this));
 			AudioManager.instance.PlaySound (AudioManager.SoundSet.HIT);
 
@@ -458,7 +457,8 @@ public class PlayerManager : MonoBehaviour, IHittable
 
 	public void TakeDamage (PlayerManager otherPlayer)
 	{
-		InterruptCoroutine (hitCoroutine, _TakeDamage (otherPlayer));
+        OnHit();
+        InterruptCoroutine (hitCoroutine, _TakeDamage (otherPlayer));
 	}
 
 	private IEnumerator _TakeDamage (PlayerManager otherPlayer)
@@ -482,12 +482,12 @@ public class PlayerManager : MonoBehaviour, IHittable
 
 	public void Recoil (PlayerManager otherPlayer)
 	{
-		InterruptCoroutine (recoilCoroutine, _Recoil (otherPlayer));
+        OnRecoil();
+        InterruptCoroutine (recoilCoroutine, _Recoil (otherPlayer));
 	}
 
 	private IEnumerator _Recoil (PlayerManager otherPlayer)
 	{
-		OnRecoil ();
 		int mult = otherPlayer.transform.position.x > transform.position.x ? -1 : 1;
 		rig.velocity = new Vector3 (25 * mult, 0, 0);
 
