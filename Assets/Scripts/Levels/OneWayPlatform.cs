@@ -7,8 +7,8 @@ public class OneWayPlatform : MonoBehaviour
 	public string player1Layer;
 	public string player2Layer;
 
-	public Player player1;
-	public Player player2;
+	public PlayerManager player1;
+	public PlayerManager player2;
 
 	public Transform floorTransform;
 

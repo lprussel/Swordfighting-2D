@@ -3,7 +3,7 @@ using System.Collections;
 
 public class HealthBar : MonoBehaviour
 {
-	public Player player;
+	public PlayerManager player;
 	private int currentDisplay;
 
 	public Transform barTransform;
@@ -20,7 +20,7 @@ public class HealthBar : MonoBehaviour
 	{
 		currentDisplay = player.health;
 
-		barTransform.localPosition = new Vector3 ((((float)currentDisplay / Player.maxHealth) / 2) - .5f, 0, -1);
-		barTransform.localScale = new Vector3 (((float)currentDisplay / Player.maxHealth), 1, 1);
+		barTransform.localPosition = new Vector3 ((((float)currentDisplay / PlayerManager.maxHealth) / 2) - .5f, 0, -1);
+		barTransform.localScale = new Vector3 (((float)currentDisplay / PlayerManager.maxHealth), 1, 1);
 	}
 }

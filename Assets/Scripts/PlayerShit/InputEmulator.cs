@@ -1,12 +1,12 @@
 ﻿using UnityEngine;
 using System.Collections;
 
-public class PlayerEmulator : MonoBehaviour
+public class InputEmulator : MonoBehaviour
 {
 	private MultiplayerInput thisInput;
-	private Player thisPlayer;
+	private PlayerManager thisPlayer;
 
-	public Player opponent;
+	public PlayerManager opponent;
 	private Vector3 vectorToOpponent;
 
 	private float attackRange = 5.0f;
@@ -25,7 +25,7 @@ public class PlayerEmulator : MonoBehaviour
 	void Start ()
 	{
 		thisInput = GetComponent<MultiplayerInput> ();
-		thisPlayer = GetComponent<Player> ();
+		thisPlayer = GetComponent<PlayerManager> ();
 	}
 
 	void Update ()
@@ -65,7 +65,7 @@ public class PlayerEmulator : MonoBehaviour
 		{
 			thisInput.controllerInput.x = 0;
 
-			if (thisPlayer.playerState != Player.PlayerState.IDLE)
+			if (thisPlayer.playerState != PlayerManager.PlayerState.IDLE)
 				return;
 
 			int rand = Random.Range (0, 5);

@@ -26,7 +26,7 @@ public class EffectsManager : MonoBehaviour
 		}
 	}
 
-	public IEnumerator OnPlayerHit (Player attackingPlayer, Player attackedPlayer)
+	public IEnumerator OnPlayerHit (PlayerManager attackingPlayer, PlayerManager attackedPlayer)
 	{
 		GameObject newHitEffect = GetEffectInSet (hitEffects);
 
@@ -48,7 +48,7 @@ public class EffectsManager : MonoBehaviour
 		newHitEffect.SetActive (false);
 	}
 
-	public IEnumerator OnPlayerBlock (Player attackingPlayer, Player attackedPlayer)
+	public IEnumerator OnPlayerBlock (PlayerManager attackingPlayer, PlayerManager attackedPlayer)
 	{
 		GameObject newBlockEffect = GetEffectInSet (blockEffects);
 

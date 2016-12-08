@@ -6,7 +6,7 @@ public class GameManager : MonoBehaviour
 {
 	public static GameManager instance;
 
-	public Player[] players;
+	public PlayerManager[] players;
 
 	void Awake ()
 	{
@@ -15,7 +15,7 @@ public class GameManager : MonoBehaviour
 
 	void Start ()
 	{
-		players = FindObjectsOfType<Player> ();
+		players = FindObjectsOfType<PlayerManager> ();
 	}
 
 	public void PlayerWon ()

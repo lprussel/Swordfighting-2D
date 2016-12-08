@@ -1,7 +1,8 @@
 ﻿using UnityEngine;
 using System.Collections;
+using System;
 
-public class Player : MonoBehaviour
+public class PlayerManager : MonoBehaviour, IHittable
 {
 	public enum PlayerState
 	{
@@ -40,9 +41,6 @@ public class Player : MonoBehaviour
 
 	private float horizontalInput;
 
-	public Animation anim;
-	public Animation slashEffect;
-
 	private MultiplayerInput input;
 
 	public LayerMask standardMask;
@@ -52,7 +50,7 @@ public class Player : MonoBehaviour
 	private float groundedHeight = 0.5f;
 	private float jumpSpeed = 30f;
 
-	public Player opponent;
+	public PlayerManager opponent;
 
 	private float playerGotHitTime = .5f;
 
@@ -69,6 +67,12 @@ public class Player : MonoBehaviour
 	public int health = 5;
 	public static int maxHealth = 5;
 
+	public Action OnTelegraph = delegate { };
+	public Action OnAttack = delegate { };
+	public Action OnDash = delegate { };
+	public Action OnRecoil = delegate { };
+	public Action OnHit = delegate { };
+
 	#pragma warning disable 0649
 	private Coroutine telegraphCoroutine;
 	private Coroutine attackCoroutine;
@@ -79,10 +83,9 @@ public class Player : MonoBehaviour
 	private Coroutine currentCombatCoroutine;
 	#pragma warning restore 0649
 
-	void Start ()
+	void Awake ()
 	{
 		rig = GetComponent<Rigidbody> ();
-		//anim = GetComponent<Animation> ();
 		input = GetComponent<MultiplayerInput> ();
 
 		input.OnReceiveAttackInput += OnReceiveAttackInput;
@@ -95,10 +98,6 @@ public class Player : MonoBehaviour
 		health = maxHealth;
 
 		ChangeState (PlayerState.IDLE);
-
-		anim ["RunForward"].speed = 1.5f;
-		anim ["RunBackward"].speed = -1.5f;
-		anim ["Dash"].speed = 2f;
 	}
 
 	void OnDestroy ()
@@ -109,6 +108,11 @@ public class Player : MonoBehaviour
 
 		input.OnBlockInputEnter -= OnBlockInputEnter;
 		input.OnBlockInputExit -= OnBlockInputExit;
+	}
+
+	public Rigidbody GetRigidbody ()
+	{
+		return rig;
 	}
 
 	public void ChangeState (PlayerState newState)
@@ -140,7 +144,7 @@ public class Player : MonoBehaviour
 				rig.velocity = new Vector3 (rig.velocity.x, jumpSpeed, rig.velocity.z);
 				break;
 			case PlayerState.HIT:
-				GotHit (opponent);
+				TakeDamage (opponent);
 				break;
 			case PlayerState.CANT_MOVE:
 				break;
@@ -153,37 +157,6 @@ public class Player : MonoBehaviour
 		{
 			case PlayerState.IDLE:
 				HandleMovement ();
-				if (Mathf.Abs (rig.velocity.y) > .05f && !grounded)
-				{
-					if (rig.velocity.y > 0)
-						anim.Play ("Jump");
-					else
-					{
-						if (rig.velocity.x > 0 && transform.right.x > 0)
-							anim.Play ("FallForward");
-						else if (rig.velocity.x < 0 && transform.right.x < 0)
-							anim.Play ("FallForward");
-						else if (rig.velocity.x > 0 && transform.right.x < 0)
-							anim.Play ("FallBackward");
-						else if (rig.velocity.x < 0 && transform.right.x > 0)
-							anim.Play ("FallBackward");
-					}
-
-					return;
-				}
-				else if (grounded && Mathf.Abs (rig.velocity.x) > 0)
-				{
-					if (rig.velocity.x > 0 && transform.right.x > 0)
-						anim.CrossFade ("RunForward");
-					else if (rig.velocity.x < 0 && transform.right.x < 0)
-						anim.CrossFade ("RunForward");
-					else if (rig.velocity.x > 0 && transform.right.x < 0)
-						anim.CrossFade ("RunBackward");
-					else if (rig.velocity.x < 0 && transform.right.x > 0)
-						anim.CrossFade ("RunBackward");
-				}
-				else
-					anim.CrossFade ("Idle", .5f);
 				break;
 			case PlayerState.BLOCKING:
 				if (reposteTimer < maxReposteTime)
@@ -195,7 +168,6 @@ public class Player : MonoBehaviour
 					canReposte = false;
 				
 				rig.velocity = new Vector3 (Mathf.Lerp (rig.velocity.x, 0, Time.deltaTime * 10), rig.velocity.y, rig.velocity.z);
-				anim.Play ("Block");
 				break;
 			case PlayerState.TELEGRAPHING:
 				break;
@@ -208,24 +180,6 @@ public class Player : MonoBehaviour
 				break;
 			case PlayerState.JUMPING:
 				HandleMovement ();
-				if (Mathf.Abs (rig.velocity.y) > .05f)
-				{
-					if (rig.velocity.y > 0)
-						anim.Play ("Jump");
-					else
-					{
-						if (rig.velocity.x > 0 && transform.right.x > 0)
-							anim.Play ("FallForward");
-						else if (rig.velocity.x < 0 && transform.right.x < 0)
-							anim.Play ("FallForward");
-						else if (rig.velocity.x > 0 && transform.right.x < 0)
-							anim.Play ("FallBackward");
-						else if (rig.velocity.x < 0 && transform.right.x > 0)
-							anim.Play ("FallBackward");
-					}
-
-					return;
-				}
 				break;
 			case PlayerState.HIT:
 				rig.velocity = new Vector3 (Mathf.Lerp (rig.velocity.x, 0, Time.deltaTime * 5), rig.velocity.y, rig.velocity.z);
@@ -310,7 +264,7 @@ public class Player : MonoBehaviour
 	{
 		rig.useGravity = false;
 		rig.velocity = new Vector3 (0, 0, 0);
-		anim.Play ("Telegraph");
+		OnTelegraph ();
 		yield return new WaitForSeconds (telegraphTime);
 		ChangeState (PlayerState.ATTACKING);
 	}
@@ -326,10 +280,7 @@ public class Player : MonoBehaviour
 		rig.velocity = new Vector3 (0, 0, 0);
 		rig.useGravity = true;
 
-		string attackName = GetAttackName ();
-		anim.Stop ();
-		anim.Play (attackName);
-		slashEffect.Play (attackName);
+		OnAttack ();
 
 		Vector3 initialPosition = transform.position;
 
@@ -352,10 +303,10 @@ public class Player : MonoBehaviour
 					hitPlayerFlag = true;
 
 					RaycastHit hit = hits [i];
-					if (hit.collider.tag == "Player" && hit.collider.gameObject != gameObject)
+					if ((hit.collider.tag == "Interactive" || hit.collider.tag == "Player") && hit.collider.gameObject != gameObject)
 					{
-						Player target = hit.collider.GetComponent<Player> ();
-						target.CheckHit (this);
+						IHittable target = hit.collider.GetComponent<IHittable> ();
+						target.GotHit (this);
 					}
 				}
 			}
@@ -366,13 +317,6 @@ public class Player : MonoBehaviour
 		yield return new WaitForSeconds (attackEndDelay);
 
 		ChangeState (PlayerState.IDLE);
-	}
-
-	string GetAttackName ()
-	{
-		int rand = Random.Range (0, 3) + 1;
-		string name = "Slash" + rand.ToString ();
-		return name;
 	}
 
 	float CalculateMoveDistance (Vector3 direction, float moveDistance, LayerMask mask)
@@ -402,8 +346,7 @@ public class Player : MonoBehaviour
 		float t = 0;
 		rig.velocity = new Vector3 (0, 0, 0);
 
-		anim.Stop ();
-		anim.Play ("Dash");
+		OnDash ();
 
 		Vector3 initialPosition = transform.position;
 
@@ -455,15 +398,15 @@ public class Player : MonoBehaviour
 		currentCombatCoroutine = currentCoroutine;
 	}
 
-	public void CheckHit (Player otherPlayer)
+	public void GotHit (PlayerManager attackingPlayer)
 	{
 		if (playerState == PlayerState.DASHING)
 			return;
 
 		bool wasBlocked = false;
 
-		if (playerState == PlayerState.BLOCKING && transform.right.x > 0 && otherPlayer.transform.position.x > transform.position.x ||
-		    playerState == PlayerState.BLOCKING && transform.right.x < 0 && otherPlayer.transform.position.x < transform.position.x)
+		if (playerState == PlayerState.BLOCKING && transform.right.x > 0 && attackingPlayer.transform.position.x > transform.position.x ||
+		    playerState == PlayerState.BLOCKING && transform.right.x < 0 && attackingPlayer.transform.position.x < transform.position.x)
 		{
 			wasBlocked = true;
 		}
@@ -471,40 +414,39 @@ public class Player : MonoBehaviour
 		if (!wasBlocked)
 		{
 			ChangeState (PlayerState.HIT);
-			anim.Stop ();
-			anim.Play ("GotHit");
-			EffectsManager.instance.StartCoroutine (EffectsManager.instance.OnPlayerHit (otherPlayer, this));
+			OnHit ();
+			EffectsManager.instance.StartCoroutine (EffectsManager.instance.OnPlayerHit (attackingPlayer, this));
 			AudioManager.instance.PlaySound (AudioManager.SoundSet.HIT);
 
-			int mult = otherPlayer.transform.position.x > transform.position.x ? -1 : 1;
+			int mult = attackingPlayer.transform.position.x > transform.position.x ? -1 : 1;
 			rig.velocity = new Vector3 (25 * mult, 0, 0);
 		}
 		else
 		{
 			if (canReposte)
 			{
-				EffectsManager.instance.StartCoroutine (EffectsManager.instance.OnPlayerBlock (otherPlayer, this));
+				EffectsManager.instance.StartCoroutine (EffectsManager.instance.OnPlayerBlock (attackingPlayer, this));
 				AudioManager.instance.PlaySound (AudioManager.SoundSet.REPOSTE);
 
-				otherPlayer.ChangeState (PlayerState.RECOILING);
+				attackingPlayer.ChangeState (PlayerState.RECOILING);
 			}
 			else
 			{
-				EffectsManager.instance.StartCoroutine (EffectsManager.instance.OnPlayerBlock (otherPlayer, this));
+				EffectsManager.instance.StartCoroutine (EffectsManager.instance.OnPlayerBlock (attackingPlayer, this));
 				AudioManager.instance.PlaySound (AudioManager.SoundSet.BLOCK);
 
-				int mult = otherPlayer.transform.position.x > transform.position.x ? -1 : 1;
+				int mult = attackingPlayer.transform.position.x > transform.position.x ? -1 : 1;
 				rig.velocity = new Vector3 (25 * mult, 0, 0);
 			}
 		}
 	}
 
-	public void GotHit (Player otherPlayer)
+	public void TakeDamage (PlayerManager otherPlayer)
 	{
-		InterruptCoroutine (hitCoroutine, _GotHit (otherPlayer));
+		InterruptCoroutine (hitCoroutine, _TakeDamage (otherPlayer));
 	}
 
-	private IEnumerator _GotHit (Player otherPlayer)
+	private IEnumerator _TakeDamage (PlayerManager otherPlayer)
 	{
 		if (health > 1)
 		{
@@ -523,14 +465,14 @@ public class Player : MonoBehaviour
 		}
 	}
 
-	public void Recoil (Player otherPlayer)
+	public void Recoil (PlayerManager otherPlayer)
 	{
 		InterruptCoroutine (recoilCoroutine, _Recoil (otherPlayer));
 	}
 
-	private IEnumerator _Recoil (Player otherPlayer)
+	private IEnumerator _Recoil (PlayerManager otherPlayer)
 	{
-		anim.Play ("GotHit");
+		OnRecoil ();
 		int mult = otherPlayer.transform.position.x > transform.position.x ? -1 : 1;
 		rig.velocity = new Vector3 (25 * mult, 0, 0);
 
