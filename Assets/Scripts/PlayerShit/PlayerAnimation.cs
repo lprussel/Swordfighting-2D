@@ -3,28 +3,38 @@ using System.Collections;
 
 public class PlayerAnimation : MonoBehaviour
 {
-	public Animation playerAnimation;
-	public Animation swordAnimation;
-	public PlayerManager playerManager;
+	private Animation playerAnimation;
+	private Animation swordAnimation;
+	private PlayerManager playerManager;
 	private Rigidbody rig;
 
-	void Start ()
-	{
-		rig = playerManager.GetRigidbody();
+    private bool initialized;
 
-		playerAnimation ["RunForward"].speed = 1.5f;
-		playerAnimation ["RunBackward"].speed = -1.5f;
-		playerAnimation ["Dash"].speed = 2f;
+    public void Initialize(PlayerManager playerManager, Rigidbody rigidbody, Animation playerAnimation, Animation swordAnimation)
+    {
+        this.playerManager = playerManager;
+        this.rig = rigidbody;
+        this.playerAnimation = playerAnimation;
+        this.swordAnimation = swordAnimation;
 
-		playerManager.OnTelegraph += OnTelegraph;
-		playerManager.OnAttack += OnAttack;
-		playerManager.OnDash += OnDash;
-		playerManager.OnRecoil += OnRecoil;
-		playerManager.OnHit += OnRecoil;
-	}
+        playerAnimation["RunForward"].speed = 1.5f;
+        playerAnimation["RunBackward"].speed = -1.5f;
+        playerAnimation["Dash"].speed = 2f;
+
+        playerManager.OnTelegraph += OnTelegraph;
+        playerManager.OnAttack += OnAttack;
+        playerManager.OnDash += OnDash;
+        playerManager.OnRecoil += OnRecoil;
+        playerManager.OnHit += OnRecoil;
+
+        initialized = true;
+    }
 
 	void OnDestroy ()
 	{
+        if (!initialized)
+            return;
+
 		playerManager.OnTelegraph -= OnTelegraph;
 		playerManager.OnAttack -= OnAttack;
 		playerManager.OnDash -= OnDash;
@@ -34,6 +44,9 @@ public class PlayerAnimation : MonoBehaviour
 
 	void Update ()
 	{
+        if (!initialized)
+            return;
+
 		switch (playerManager.playerState)
 		{
 			case PlayerManager.PlayerState.IDLE:

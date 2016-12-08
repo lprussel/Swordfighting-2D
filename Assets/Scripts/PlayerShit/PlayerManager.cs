@@ -79,6 +79,11 @@ public class PlayerManager : MonoBehaviour, IHittable
 	public Action OnRecoil = delegate { };
 	public Action OnHit = delegate { };
 
+    public Animation playerAnimation;
+    public Animation swordAnimation;
+
+    private PlayerAnimation animationManager;
+
 	#pragma warning disable 0649
 	private Coroutine telegraphCoroutine;
 	private Coroutine attackCoroutine;
@@ -94,7 +99,7 @@ public class PlayerManager : MonoBehaviour, IHittable
 		rig = GetComponent<Rigidbody> ();
 		input = GetComponent<MultiplayerInput> ();
 
-		input.OnReceiveAttackInput += OnReceiveAttackInput;
+        input.OnReceiveAttackInput += OnReceiveAttackInput;
 		input.OnReceiveDodgeInput += OnReceiveDodgeInput;
 		input.OnReceiveJumpInput += OnReceiveJumpInput;
 
@@ -103,7 +108,10 @@ public class PlayerManager : MonoBehaviour, IHittable
 
 		health = maxHealth;
 
-		ChangeState (PlayerState.IDLE);
+        animationManager = gameObject.AddComponent<PlayerAnimation>();
+        animationManager.Initialize(this, rig, playerAnimation, swordAnimation);
+
+        ChangeState (PlayerState.IDLE);
 	}
 
 	void OnDestroy ()
