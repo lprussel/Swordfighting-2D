@@ -16,10 +16,16 @@ public class PlayerManager : MonoBehaviour, IHittable
 		HIT,
 		CANT_MOVE
 	}
+    public PlayerState playerState;
 
-	public PlayerState playerState;
+    public enum FacingDirection
+    {
+        LEFT,
+        RIGHT
+    }
+    public FacingDirection facingDirection;
 
-	private Rigidbody rig;
+    private Rigidbody rig;
 
 	private float moveSpeed = 8f;
 	private int moveDirection;
@@ -142,6 +148,7 @@ public class PlayerManager : MonoBehaviour, IHittable
 				break;
 			case PlayerState.JUMPING:
 				rig.velocity = new Vector3 (rig.velocity.x, jumpSpeed, rig.velocity.z);
+                ChangeState(PlayerState.IDLE);
 				break;
 			case PlayerState.HIT:
 				TakeDamage (opponent);
@@ -179,7 +186,6 @@ public class PlayerManager : MonoBehaviour, IHittable
 			case PlayerState.DASHING:
 				break;
 			case PlayerState.JUMPING:
-				HandleMovement ();
 				break;
 			case PlayerState.HIT:
 				rig.velocity = new Vector3 (Mathf.Lerp (rig.velocity.x, 0, Time.deltaTime * 5), rig.velocity.y, rig.velocity.z);
@@ -195,6 +201,7 @@ public class PlayerManager : MonoBehaviour, IHittable
 		horizontalInput = input.controllerInput.x;
 		//transform.right = input.mousePosition.x > transform.position.x ? Vector3.right : Vector3.left;
 		transform.right = opponent.transform.position.x > transform.position.x ? Vector3.right : Vector3.left;
+        facingDirection = transform.right.x > 0 ? FacingDirection.RIGHT : FacingDirection.LEFT;
 
 		CheckGrounded ();
 

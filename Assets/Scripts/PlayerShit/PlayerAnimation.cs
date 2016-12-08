@@ -37,37 +37,10 @@ public class PlayerAnimation : MonoBehaviour
 		switch (playerManager.playerState)
 		{
 			case PlayerManager.PlayerState.IDLE:
-				if (Mathf.Abs (rig.velocity.y) > .05f && !playerManager.grounded)
-				{
-					if (rig.velocity.y > 0)
-						playerAnimation.Play ("Jump");
-					else
-					{
-						if (rig.velocity.x > 0 && transform.right.x > 0)
-							playerAnimation.Play ("FallForward");
-						else if (rig.velocity.x < 0 && transform.right.x < 0)
-							playerAnimation.Play ("FallForward");
-						else if (rig.velocity.x > 0 && transform.right.x < 0)
-							playerAnimation.Play ("FallBackward");
-						else if (rig.velocity.x < 0 && transform.right.x > 0)
-							playerAnimation.Play ("FallBackward");
-					}
-
-					return;
-				}
-				else if (playerManager.grounded && Mathf.Abs (rig.velocity.x) > 0)
-				{
-					if (rig.velocity.x > 0 && transform.right.x > 0)
-						playerAnimation.CrossFade ("RunForward");
-					else if (rig.velocity.x < 0 && transform.right.x < 0)
-						playerAnimation.CrossFade ("RunForward");
-					else if (rig.velocity.x > 0 && transform.right.x < 0)
-						playerAnimation.CrossFade ("RunBackward");
-					else if (rig.velocity.x < 0 && transform.right.x > 0)
-						playerAnimation.CrossFade ("RunBackward");
-				}
-				else
-					playerAnimation.CrossFade ("Idle", .5f);
+                if (playerManager.grounded)
+                    GroundedAnimation();
+                else
+                    InAirAnimation();
 				break;
 			case PlayerManager.PlayerState.BLOCKING:
 				playerAnimation.Play ("Block");
@@ -81,24 +54,6 @@ public class PlayerAnimation : MonoBehaviour
 			case PlayerManager.PlayerState.DASHING:
 				break;
 			case PlayerManager.PlayerState.JUMPING:
-				if (Mathf.Abs (rig.velocity.y) > .05f)
-				{
-					if (rig.velocity.y > 0)
-						playerAnimation.Play ("Jump");
-					else
-					{
-						if (rig.velocity.x > 0 && transform.right.x > 0)
-							playerAnimation.Play ("FallForward");
-						else if (rig.velocity.x < 0 && transform.right.x < 0)
-							playerAnimation.Play ("FallForward");
-						else if (rig.velocity.x > 0 && transform.right.x < 0)
-							playerAnimation.Play ("FallBackward");
-						else if (rig.velocity.x < 0 && transform.right.x > 0)
-							playerAnimation.Play ("FallBackward");
-					}
-
-					return;
-				}
 				break;
 			case PlayerManager.PlayerState.HIT:
 				break;
@@ -107,10 +62,43 @@ public class PlayerAnimation : MonoBehaviour
 		}
 	}
 
+    void GroundedAnimation()
+    {
+        if (Mathf.Abs(rig.velocity.x) > 0)
+        {
+            if (rig.velocity.x > 0 && playerManager.facingDirection == PlayerManager.FacingDirection.RIGHT)
+                playerAnimation.CrossFade("RunForward");
+            else if (rig.velocity.x < 0 && playerManager.facingDirection == PlayerManager.FacingDirection.LEFT)
+                playerAnimation.CrossFade("RunForward");
+            else if (rig.velocity.x > 0 && playerManager.facingDirection == PlayerManager.FacingDirection.LEFT)
+                playerAnimation.CrossFade("RunBackward");
+            else if (rig.velocity.x < 0 && playerManager.facingDirection == PlayerManager.FacingDirection.RIGHT)
+                playerAnimation.CrossFade("RunBackward");
+        }
+        else
+            playerAnimation.CrossFade("Idle", .5f);
+    }
+
+    void InAirAnimation ()
+    {
+        if (rig.velocity.y <= 0)
+        {
+            if (rig.velocity.x > 0 && playerManager.facingDirection == PlayerManager.FacingDirection.RIGHT)
+                playerAnimation.Play("FallForward");
+            else if (rig.velocity.x < 0 && playerManager.facingDirection == PlayerManager.FacingDirection.LEFT)
+                playerAnimation.Play("FallForward");
+            else if (rig.velocity.x > 0 && playerManager.facingDirection == PlayerManager.FacingDirection.LEFT)
+                playerAnimation.Play("FallBackward");
+            else if (rig.velocity.x < 0 && playerManager.facingDirection == PlayerManager.FacingDirection.RIGHT)
+                playerAnimation.Play("FallBackward");
+        }
+        else
+            playerAnimation.Play("Jump");
+    }
+
 	void OnTelegraph ()
 	{
 		playerAnimation.Play ("Telegraph");
-		Debug.Log ("TELEGRAPH!");
 	}
 
 	void OnAttack ()
@@ -122,22 +110,18 @@ public class PlayerAnimation : MonoBehaviour
 
 		playerAnimation.Play (attackName);
 		swordAnimation.Play (attackName);
-
-		Debug.Log ("ATTACK!");
 	}
 
 	void OnDash ()
 	{
 		playerAnimation.Stop ();
 		playerAnimation.Play ("Dash");
-		Debug.Log ("DASH!");
 	}
 
 	void OnRecoil ()
 	{
 		playerAnimation.Stop ();
 		playerAnimation.Play ("GotHit");
-		Debug.Log ("RECOIL!");
 	}
 
 	string GetAttackName ()
