@@ -15,13 +15,19 @@ public class GameManager : MonoBehaviour
 
 	void Start ()
 	{
-		players = FindObjectsOfType<PlayerManager> ();
+		//players = FindObjectsOfType<PlayerManager> ();
 	}
 
 	public void PlayerWon ()
 	{
 		StartCoroutine (_PlayerWon ());
 	}
+
+    public PlayerManager GetOtherPlayer (int thisPlayerNumber)
+    {
+        int otherPlayerNumber = thisPlayerNumber == 0 ? 1 : 0;
+        return players[otherPlayerNumber];
+    }
 
 	IEnumerator _PlayerWon ()
 	{

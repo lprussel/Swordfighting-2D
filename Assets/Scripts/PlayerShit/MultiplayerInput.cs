@@ -4,11 +4,14 @@ using System;
 
 public class MultiplayerInput : MonoBehaviour
 {
-	public int player;
+    private InputEmulator inputEmulator;
+
+    private int playerNumber;
 	[HideInInspector]
 	public Vector2 controllerInput;
 
 	private Vector3 mouseVector;
+    [HideInInspector]
 	public Vector3 mousePosition;
 
 	public Action OnReceiveAttackInput = delegate { };
@@ -19,14 +22,29 @@ public class MultiplayerInput : MonoBehaviour
 
 	private Plane gamePlane;
 
-	void Start ()
-	{
-		gamePlane.SetNormalAndPosition (-Vector3.forward, Vector3.zero);
-	}
+    private bool initialized;
+
+    public void Initialize (PlayerManager playerManager, int playerNumber, bool isAI)
+    {
+        this.playerNumber = playerNumber;
+
+        gamePlane.SetNormalAndPosition(-Vector3.forward, Vector3.zero);
+
+        if (isAI)
+        {
+            inputEmulator = gameObject.AddComponent<InputEmulator>();
+            inputEmulator.Initialize(playerManager, this, GameManager.instance.GetOtherPlayer(playerNumber));
+        }
+
+        initialized = true;
+    }
 
 	void Update ()
 	{
-		if (player == 0)
+        if (!initialized)
+            return;
+
+		if (playerNumber == 0)
 		{
 			controllerInput.x = Input.GetAxisRaw ("Horizontal");
 			controllerInput.y = Input.GetAxisRaw ("Vertical");

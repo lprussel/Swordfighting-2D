@@ -4,6 +4,9 @@ using System;
 
 public class PlayerManager : MonoBehaviour, IHittable
 {
+    public int playerNumber;
+    public bool isAI;
+
 	public enum PlayerState
 	{
 		IDLE,
@@ -16,6 +19,7 @@ public class PlayerManager : MonoBehaviour, IHittable
 		HIT,
 		CANT_MOVE
 	}
+    [HideInInspector]
     public PlayerState playerState;
 
     public enum FacingDirection
@@ -23,16 +27,23 @@ public class PlayerManager : MonoBehaviour, IHittable
         LEFT,
         RIGHT
     }
+    [HideInInspector]
     public FacingDirection facingDirection;
 
-    private MultiplayerInput input;
-
+    private MultiplayerInput multiplayerInput;
     private Rigidbody rig;
+    private PlayerManager opponent;
+    private PlayerAnimation animationManager;
+    public Transform footTransform;
+    public Animation playerAnimation;
+    public Animation swordAnimation;
 
-	private float moveSpeed = 8f;
+    public LayerMask standardMask;
+    public LayerMask ignorePlayerMask;
+
+    private float moveSpeed = 8f;
 	private int moveDirection;
-
-	//private float attackSpeed = 100f;
+    
 	private float attackDistance = 5f;
 	private float attackTime = .05f;
 
@@ -49,20 +60,13 @@ public class PlayerManager : MonoBehaviour, IHittable
 
 	private float horizontalInput;
 
-	public LayerMask standardMask;
-	public LayerMask ignorePlayerMask;
-
 	public bool grounded;
 	private float groundedHeight = 0.5f;
 	private float jumpSpeed = 30f;
 
-	public PlayerManager opponent;
-
 	private float playerGotHitTime = .5f;
 
 	private float recoilTime = .75f;
-
-	public Transform footTransform;
 
 	private float reposteTimer;
 	private float maxReposteTime = .25f;
@@ -79,11 +83,6 @@ public class PlayerManager : MonoBehaviour, IHittable
 	public Action OnRecoil = delegate { };
 	public Action OnHit = delegate { };
 
-    public Animation playerAnimation;
-    public Animation swordAnimation;
-
-    private PlayerAnimation animationManager;
-
 	#pragma warning disable 0649
 	private Coroutine telegraphCoroutine;
 	private Coroutine attackCoroutine;
@@ -94,34 +93,38 @@ public class PlayerManager : MonoBehaviour, IHittable
 	private Coroutine currentCombatCoroutine;
 	#pragma warning restore 0649
 
-	void Awake ()
+	void Start ()
 	{
 		rig = GetComponent<Rigidbody> ();
-		input = GetComponent<MultiplayerInput> ();
 
-        input.OnReceiveAttackInput += OnReceiveAttackInput;
-		input.OnReceiveDodgeInput += OnReceiveDodgeInput;
-		input.OnReceiveJumpInput += OnReceiveJumpInput;
-
-		input.OnBlockInputEnter += OnBlockInputEnter;
-		input.OnBlockInputExit += OnBlockInputExit;
-
-		health = maxHealth;
+        opponent = GameManager.instance.GetOtherPlayer(playerNumber);
 
         animationManager = gameObject.AddComponent<PlayerAnimation>();
         animationManager.Initialize(this, rig, playerAnimation, swordAnimation);
+
+        multiplayerInput = gameObject.AddComponent<MultiplayerInput>();
+        multiplayerInput.Initialize(this, playerNumber, isAI);
+
+        multiplayerInput.OnReceiveAttackInput += OnReceiveAttackInput;
+		multiplayerInput.OnReceiveDodgeInput += OnReceiveDodgeInput;
+		multiplayerInput.OnReceiveJumpInput += OnReceiveJumpInput;
+
+		multiplayerInput.OnBlockInputEnter += OnBlockInputEnter;
+		multiplayerInput.OnBlockInputExit += OnBlockInputExit;
+
+		health = maxHealth;
 
         ChangeState (PlayerState.IDLE);
 	}
 
 	void OnDestroy ()
 	{
-		input.OnReceiveAttackInput -= OnReceiveAttackInput;
-		input.OnReceiveDodgeInput -= OnReceiveDodgeInput;
-		input.OnReceiveJumpInput -= OnReceiveJumpInput;
+		multiplayerInput.OnReceiveAttackInput -= OnReceiveAttackInput;
+		multiplayerInput.OnReceiveDodgeInput -= OnReceiveDodgeInput;
+		multiplayerInput.OnReceiveJumpInput -= OnReceiveJumpInput;
 
-		input.OnBlockInputEnter -= OnBlockInputEnter;
-		input.OnBlockInputExit -= OnBlockInputExit;
+		multiplayerInput.OnBlockInputEnter -= OnBlockInputEnter;
+		multiplayerInput.OnBlockInputExit -= OnBlockInputExit;
 	}
 
 	public Rigidbody GetRigidbody ()
@@ -207,7 +210,7 @@ public class PlayerManager : MonoBehaviour, IHittable
 
 	void HandleMovement ()
 	{
-		horizontalInput = input.controllerInput.x;
+		horizontalInput = multiplayerInput.controllerInput.x;
 		//transform.right = input.mousePosition.x > transform.position.x ? Vector3.right : Vector3.left;
 		transform.right = opponent.transform.position.x > transform.position.x ? Vector3.right : Vector3.left;
         facingDirection = transform.right.x > 0 ? FacingDirection.RIGHT : FacingDirection.LEFT;
@@ -369,7 +372,7 @@ public class PlayerManager : MonoBehaviour, IHittable
 
 		AudioManager.instance.PlaySound (AudioManager.SoundSet.DASH);
 
-		moveDirection = input.controllerInput.x == 0 ? (transform.right.x > 0 ? -1 : 1) : (input.controllerInput.x > 0 ? 1 : -1);
+		moveDirection = multiplayerInput.controllerInput.x == 0 ? (transform.right.x > 0 ? -1 : 1) : (multiplayerInput.controllerInput.x > 0 ? 1 : -1);
 
 		float distanceMult = CalculateMoveDistance (Vector3.right * moveDirection, dashDistance, ignorePlayerMask);
 

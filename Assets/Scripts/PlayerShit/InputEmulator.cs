@@ -3,10 +3,10 @@ using System.Collections;
 
 public class InputEmulator : MonoBehaviour
 {
-	private MultiplayerInput thisInput;
-	private PlayerManager thisPlayer;
+	private MultiplayerInput multiplayerInput;
+	private PlayerManager playerManager;
 
-	public PlayerManager opponent;
+	private PlayerManager opponent;
 	private Vector3 vectorToOpponent;
 
 	private float attackRange = 5.0f;
@@ -22,15 +22,20 @@ public class InputEmulator : MonoBehaviour
 	}
 	public AI_State aiState;
 
-	void Start ()
+    private bool initialized;
+
+	public void Initialize (PlayerManager playerManager, MultiplayerInput multiplayerInput, PlayerManager opponent)
 	{
-		thisInput = GetComponent<MultiplayerInput> ();
-		thisPlayer = GetComponent<PlayerManager> ();
+		this.multiplayerInput = multiplayerInput;
+        this.playerManager = playerManager;
+        this.opponent = opponent;
+
+        initialized = true;
 	}
 
 	void Update ()
 	{
-		if (aiState != AI_State.FOLLOWING)
+		if (!initialized || aiState != AI_State.FOLLOWING)
 			return;
 		
 		vectorToOpponent = MathUtilities.FlattenVector (opponent.transform.position, MathUtilities.Axis.Y) - MathUtilities.FlattenVector (transform.position, MathUtilities.Axis.Y);
@@ -41,31 +46,31 @@ public class InputEmulator : MonoBehaviour
 	void EmulateInput ()
 	{
 		if (vectorToOpponent.x > 0)
-			thisInput.mousePosition.x = transform.position.x + 5;
+			multiplayerInput.mousePosition.x = transform.position.x + 5;
 		else if (vectorToOpponent.x < 0)
-			thisInput.mousePosition.x = transform.position.x - 5;
+			multiplayerInput.mousePosition.x = transform.position.x - 5;
 
 		if (vectorToOpponent.x > -jumpRange && vectorToOpponent.x < jumpRange)
 		{
 			if (opponent.transform.position.y > transform.position.y + .25f)
 			{
-				thisInput.OnReceiveJumpInput ();
+				multiplayerInput.OnReceiveJumpInput ();
 			}
 		}
 
 		if (vectorToOpponent.x >= attackRange)
 		{
-			thisInput.controllerInput.x = 1;
+			multiplayerInput.controllerInput.x = 1;
 		}
 		else if (vectorToOpponent.x <= -attackRange)
 		{
-			thisInput.controllerInput.x = -1;
+			multiplayerInput.controllerInput.x = -1;
 		}
 		else if (vectorToOpponent.x < attackRange && vectorToOpponent.x > -attackRange)
 		{
-			thisInput.controllerInput.x = 0;
+			multiplayerInput.controllerInput.x = 0;
 
-			if (thisPlayer.playerState != PlayerManager.PlayerState.IDLE)
+			if (playerManager.playerState != PlayerManager.PlayerState.IDLE)
 				return;
 
 			int rand = Random.Range (0, 5);
@@ -75,7 +80,7 @@ public class InputEmulator : MonoBehaviour
 			}
 			else if (rand == 3)
 			{
-				thisInput.OnReceiveDodgeInput ();
+				multiplayerInput.OnReceiveDodgeInput ();
 			}
 			else if (rand == 4)
 			{
@@ -93,7 +98,7 @@ public class InputEmulator : MonoBehaviour
 
 		while (Mathf.Abs(vectorToOpponent.x) < attackRange * 2 && blockTime < maxBlockTime)
 		{
-			thisInput.OnBlockInputEnter ();
+			multiplayerInput.OnBlockInputEnter ();
 
 			blockTime += Time.deltaTime;
 			yield return null;
@@ -101,7 +106,7 @@ public class InputEmulator : MonoBehaviour
 
 		yield return new WaitForSeconds (Random.Range(.25f, 1f));
 
-		thisInput.OnBlockInputExit ();
+		multiplayerInput.OnBlockInputExit ();
 
 		aiState = AI_State.FOLLOWING;
 	}
@@ -110,7 +115,7 @@ public class InputEmulator : MonoBehaviour
 	{
 		aiState = AI_State.ATTACKING;
 
-		thisInput.OnReceiveAttackInput ();
+		multiplayerInput.OnReceiveAttackInput ();
 
 		yield return new WaitForSeconds (Random.Range(.25f, 1f));
 
@@ -121,7 +126,7 @@ public class InputEmulator : MonoBehaviour
 	{
 		aiState = AI_State.DODGING;
 
-		thisInput.OnReceiveDodgeInput ();
+		multiplayerInput.OnReceiveDodgeInput ();
 
 		yield return new WaitForSeconds (Random.Range(.5f, 1f));
 
