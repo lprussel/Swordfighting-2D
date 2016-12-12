@@ -34,6 +34,6 @@ public class GameCamera : MonoBehaviour
 
 		offset.z = zoom;
 
-		transform.position = centerPos + offset;
+		transform.position = Vector3.Lerp(transform.position, centerPos + offset, Time.deltaTime * 10);
 	}
 }
