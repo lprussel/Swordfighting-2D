@@ -46,35 +46,32 @@ public class MultiplayerInput : MonoBehaviour
 
 		if (playerNumber == 0)
 		{
-			controllerInput.x = Input.GetAxisRaw ("Horizontal");
-			controllerInput.y = Input.GetAxisRaw ("Vertical");
+			controllerInput.x = Input.GetAxisRaw ("Horizontal" + playerNumber.ToString());
+			controllerInput.y = Input.GetAxisRaw ("Vertical" + playerNumber.ToString());
 
-			Vector3 cameraPosition = GameCamera.instance.transform.position;
+            bool dodge = Input.GetButtonDown("Dodge" + playerNumber.ToString());
+            bool attack = Input.GetButtonDown("Attack" + playerNumber.ToString());
+            bool blockStart = Input.GetButtonDown("Block" + playerNumber.ToString());
+            bool blockStop = Input.GetButtonUp("Block" + playerNumber.ToString());
+            bool jump = Input.GetButtonUp("Jump" + playerNumber.ToString());
 
-			mouseVector = GameCamera.instance.thisCamera.ScreenToWorldPoint
-				(new Vector3 (Input.mousePosition.x, Input.mousePosition.y, GameCamera.instance.thisCamera.nearClipPlane));
-
-			mouseVector = mouseVector - cameraPosition;
-
-			MathUtilities.LinePlaneIntersection (cameraPosition, mouseVector, Vector3.zero, -Vector3.forward, out mousePosition);
-
-			if (Input.GetKeyDown (KeyCode.L))
+            if (dodge)
 			{
 				OnReceiveDodgeInput ();
 			}
-			if (Input.GetKeyDown (KeyCode.J))
+			if (attack)
 			{
 				OnReceiveAttackInput ();
 			}
-			if (Input.GetKeyDown (KeyCode.K))
+			if (blockStart)
 			{
 				OnBlockInputEnter ();
 			}
-			if (Input.GetKeyUp (KeyCode.K))
+			if (blockStop)
 			{
 				OnBlockInputExit ();
 			}
-			if (Input.GetKeyDown (KeyCode.Space))
+			if (jump)
 			{
 				OnReceiveJumpInput ();
 			}

@@ -6,8 +6,8 @@ public class GameCamera : MonoBehaviour
 	public Transform[] players;
 	public Vector3 offset;
 	public static GameCamera instance;
-	[HideInInspector]
-	public Camera thisCamera;
+
+    public Screenshake screenshake;
 
 	private float minZoom = -10f;
 	private float zoom;
@@ -15,9 +15,20 @@ public class GameCamera : MonoBehaviour
 	void Awake ()
 	{
 		instance = this;
-		thisCamera = GetComponent<Camera> ();
 		zoom = minZoom + -(Vector3.Distance(players[0].transform.position, players[1].transform.position) / 2);
 	}
+
+    void Start ()
+    {
+        GameManager.instance.players[0].OnHit += GotHit;
+        GameManager.instance.players[1].OnHit += GotHit;
+    }
+
+    void OnDisable ()
+    {
+        GameManager.instance.players[0].OnHit -= GotHit;
+        GameManager.instance.players[1].OnHit -= GotHit;
+    }
 
 	void LateUpdate ()
 	{
@@ -36,4 +47,9 @@ public class GameCamera : MonoBehaviour
 
 		transform.position = Vector3.Lerp(transform.position, centerPos + offset, Time.deltaTime * 10);
 	}
+
+    void GotHit ()
+    {
+        screenshake.Shake(5f, .2f);
+    }
 }
