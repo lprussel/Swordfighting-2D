@@ -44,37 +44,34 @@ public class MultiplayerInput : MonoBehaviour
         if (!initialized)
             return;
 
-		if (playerNumber == 0)
-		{
-			controllerInput.x = Input.GetAxisRaw ("Horizontal" + playerNumber.ToString());
-			controllerInput.y = Input.GetAxisRaw ("Vertical" + playerNumber.ToString());
+        controllerInput.x = Input.GetAxisRaw("Horizontal" + playerNumber.ToString());
+        controllerInput.y = Input.GetAxisRaw("Vertical" + playerNumber.ToString());
 
-            bool dodge = Input.GetButtonDown("Dodge" + playerNumber.ToString());
-            bool attack = Input.GetButtonDown("Attack" + playerNumber.ToString());
-            bool blockStart = Input.GetButtonDown("Block" + playerNumber.ToString());
-            bool blockStop = Input.GetButtonUp("Block" + playerNumber.ToString());
-            bool jump = Input.GetButtonUp("Jump" + playerNumber.ToString());
+        bool dodge = Input.GetButtonDown("Dodge" + playerNumber.ToString());
+        bool attack = Input.GetButtonDown("Attack" + playerNumber.ToString());
+        bool blockStart = Input.GetButtonDown("Block" + playerNumber.ToString());
+        bool blockStop = Input.GetButtonUp("Block" + playerNumber.ToString());
+        bool jump = Input.GetButtonUp("Jump" + playerNumber.ToString());
 
-            if (dodge)
-			{
-				OnReceiveDodgeInput ();
-			}
-			if (attack)
-			{
-				OnReceiveAttackInput ();
-			}
-			if (blockStart)
-			{
-				OnBlockInputEnter ();
-			}
-			if (blockStop)
-			{
-				OnBlockInputExit ();
-			}
-			if (jump)
-			{
-				OnReceiveJumpInput ();
-			}
-		}
-	}
+        if (dodge)
+        {
+            OnReceiveDodgeInput();
+        }
+        if (attack)
+        {
+            OnReceiveAttackInput();
+        }
+        if (blockStart)
+        {
+            OnBlockInputEnter();
+        }
+        if (blockStop)
+        {
+            OnBlockInputExit();
+        }
+        if (jump)
+        {
+            OnReceiveJumpInput();
+        }
+    }
 }
