@@ -22,18 +22,14 @@ namespace PlayerPt2
 
             PlayerActions actions = m_Player.m_Control.Actions;
 
-            if (Input.GetKeyDown(KeyCode.Space)) actions.Jump = true;
-            else m_Player.m_Control.Actions.Jump = false;
+            actions.Jump = Input.GetKeyDown(KeyCode.Space);
 
-            if (Input.GetKeyDown(KeyCode.F)) actions.Attack = true;
-            else m_Player.m_Control.Actions.Attack = false;
+            actions.Attack = Input.GetKeyDown(KeyCode.F);
 
-            if (Input.GetKey(KeyCode.B)) actions.Block = true;
-            else m_Player.m_Control.Actions.Block = false;
+            actions.Dash = Input.GetKeyDown(KeyCode.E);
 
-            if (Input.GetKeyDown(KeyCode.E)) actions.Dash = true;
-            else m_Player.m_Control.Actions.Dash = false;
-
+            actions.Block = Input.GetKey(KeyCode.B);
+            
             actions.Move = Input.GetAxisRaw(m_MoveAxis);
         }
     }
