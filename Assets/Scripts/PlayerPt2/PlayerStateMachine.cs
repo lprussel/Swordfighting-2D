@@ -150,11 +150,12 @@ namespace PlayerPt2
         {
             while (true)
             {
+                m_Control.Physics.SlowToStop(10);
                 if (!m_Control.Input.Actions.Block)
                 {
                     RequestStateChange(StateID.Moving);
                 }
-                yield return null;
+                yield return new WaitForFixedUpdate();
             }
         }
     }
@@ -204,7 +205,13 @@ namespace PlayerPt2
         public override IEnumerator RunState()
         {
             Debug.Log("Recoiling");
-            yield return new WaitForSeconds(.25f);
+            float t = 0;
+            while (t < .25f)
+            {
+                m_Control.Physics.SlowToStop(5);
+                t += Time.fixedDeltaTime;
+                yield return new WaitForFixedUpdate();
+            }
             RequestStateChange(StateID.Moving);
         }
     }
@@ -219,7 +226,13 @@ namespace PlayerPt2
         public override IEnumerator RunState()
         {
             Debug.Log("Died");
-            yield return null;
+            float t = 0;
+            while (t < .25f)
+            {
+                m_Control.Physics.SlowToStop(5);
+                t += Time.fixedDeltaTime;
+                yield return new WaitForFixedUpdate();
+            }
         }
     }
 }

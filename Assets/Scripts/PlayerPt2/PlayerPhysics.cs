@@ -36,31 +36,30 @@ namespace PlayerPt2
         public IEnumerator Dash(float direction)
         {
             m_Rigidbody.velocity = new Vector3(0, 0, 0);
-
-            Vector3 initialPosition = m_Rigidbody.position;
-
             m_Rigidbody.isKinematic = true;
 
             float distanceMult = CalculateMoveDistance(Vector3.right * direction, m_DashDistance, m_IgnorePlayerMask);
 
+            Vector3 initialPosition = m_Rigidbody.position;
+            Vector3 targetPosition = initialPosition + new Vector3(m_DashDistance * distanceMult * direction, 0, 0);
+            
             float t = 0;
             while (t <= m_DashTime)
             {
-                t += Time.fixedDeltaTime;
-                //rig.velocity = new Vector3 (transform.right.x * attackSpeed, rig.velocity.y, 0);
-                m_Rigidbody.position = (Vector3.Lerp(initialPosition, initialPosition + new Vector3(m_DashDistance * distanceMult * direction, 0, 0), m_DashCurve.Evaluate(t / m_DashTime)));
+                float nT = Mathf.Clamp01(t / m_DashTime);
+                m_Rigidbody.position = (Vector3.Lerp(initialPosition, targetPosition, m_DashCurve.Evaluate(nT)));
 
+                t += Time.fixedDeltaTime;
                 yield return new WaitForFixedUpdate();
             }
 
             m_Rigidbody.velocity = new Vector3(0, m_Rigidbody.velocity.y, 0);
-
             m_Rigidbody.isKinematic = false;
 
             yield return new WaitForSeconds(m_DashEndDelay);
         }
 
-        float CalculateMoveDistance(Vector3 direction, float moveDistance, LayerMask mask)
+        private float CalculateMoveDistance(Vector3 direction, float moveDistance, LayerMask mask)
         {
             float acceptableDistance;
             RaycastHit hit;
@@ -82,6 +81,12 @@ namespace PlayerPt2
             Vector3 currentVelocity = m_Rigidbody.velocity;
             currentVelocity.x = x * m_MoveSpeed;
             m_Rigidbody.velocity = currentVelocity;
+        }
+
+        public void SlowToStop(float rate)
+        {
+            float x = Mathf.Lerp(m_Rigidbody.velocity.x, 0, Time.fixedDeltaTime * rate);
+            m_Rigidbody.velocity = new Vector3(x, m_Rigidbody.velocity.y, m_Rigidbody.velocity.z);
         }
     }
 }
