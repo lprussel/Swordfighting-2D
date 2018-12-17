@@ -6,27 +6,27 @@ using PlayerPt2;
 public static class GameManager
 {
 	public static PlayerManager[] Players;
-    public static PlayerSettings PlayerSettings;
+    public static PlayerSettings PSettings;
 
     static GameManager()
     {
-        PlayerSettings = Resources.Load("PlayerSettings") as PlayerSettings;
+        PSettings = Resources.Load("PlayerSettings") as PlayerSettings;
 
         Players = GameObject.FindObjectsOfType<PlayerManager>();
     }
     
-	public static void PlayerWon ()
-	{
-		CoroutineRunner.StartCoroutine (_PlayerWon ());
-	}
-
     public static PlayerManager GetOtherPlayer (int thisPlayerNumber)
     {
         int otherPlayerNumber = thisPlayerNumber == 0 ? 1 : 0;
         return Players[otherPlayerNumber];
     }
 
-	public static IEnumerator _PlayerWon ()
+    public static void PlayerWon()
+    {
+        CoroutineRunner.StartCoroutine(PlayerWonRoutine());
+    }
+
+    public static IEnumerator PlayerWonRoutine ()
 	{
 		float t = 0;
 		float maxT = 1;

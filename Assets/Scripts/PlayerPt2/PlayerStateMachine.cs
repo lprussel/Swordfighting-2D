@@ -83,7 +83,7 @@ namespace PlayerPt2
 
         public abstract StateID m_ID { get; }
 
-        public Coroutine StateCoroutine;
+        public Coroutine m_StateCoroutine;
         public abstract IEnumerator StateRoutine();
 
         public Action<StateID> RequestStateChange;
@@ -91,12 +91,12 @@ namespace PlayerPt2
         public virtual void Enter()
         {
             Debug.Log("Begin " + m_ID.ToString());
-            StateCoroutine = CoroutineRunner.StartCoroutine(StateRoutine());
+            m_StateCoroutine = CoroutineRunner.StartCoroutine(StateRoutine());
         }
 
         public virtual void Exit()
         {
-            CoroutineRunner.StopCoroutine(StateCoroutine);
+            CoroutineRunner.StopCoroutine(m_StateCoroutine);
             Debug.Log("End " + m_ID.ToString());
         }
     }
@@ -112,24 +112,24 @@ namespace PlayerPt2
         {
             while (true)
             {
-                m_Control.Physics.Run(Input.GetAxisRaw("Horizontal0"));
+                m_Control.Physics.Run(m_Control.Actions.Move);
 
-                if (m_Control.Input.Actions.Jump && m_Control.Grounded.Check())
+                if (m_Control.Actions.Jump && m_Control.Grounded.Check())
                 {
                     m_Control.Physics.Jump();
                 }
 
-                if (m_Control.Input.Actions.Attack)
+                if (m_Control.Actions.Attack)
                 {
                     RequestStateChange(StateID.Attacking);
                 }
 
-                if (m_Control.Input.Actions.Block)
+                if (m_Control.Actions.Block)
                 {
                     RequestStateChange(StateID.Blocking);
                 }
 
-                if (m_Control.Input.Actions.Dash)
+                if (m_Control.Actions.Dash)
                 {
                     RequestStateChange(StateID.Dashing);
                 }
@@ -151,7 +151,7 @@ namespace PlayerPt2
             while (true)
             {
                 m_Control.Physics.SlowToStop(10);
-                if (!m_Control.Input.Actions.Block)
+                if (!m_Control.Actions.Block)
                 {
                     RequestStateChange(StateID.Moving);
                 }
@@ -186,15 +186,15 @@ namespace PlayerPt2
         
         public override IEnumerator StateRoutine()
         {
-            float direction = m_Control.Input.Actions.Move == 0 ?
-                (m_Control.Physics.m_Rigidbody.transform.right.x > 0 ? -1 : 1) : (m_Control.Input.Actions.Move > 0 ? 1 : -1);
+            float direction = m_Control.Actions.Move == 0 ?
+                (m_Control.Physics.m_Rigidbody.transform.right.x > 0 ? -1 : 1) : (m_Control.Actions.Move > 0 ? 1 : -1);
 
             Vector3 initialPosition;
             Vector3 targetPosition;
             m_Control.Physics.BeginDash(direction, out initialPosition, out targetPosition);
 
             float t = 0;
-            while (t < GameManager.PlayerSettings.m_DashTime)
+            while (t < GameManager.PSettings.DashTime)
             {
                 m_Control.Physics.ProgressDash(initialPosition, targetPosition, t);
                 t += Time.fixedDeltaTime;
@@ -203,7 +203,7 @@ namespace PlayerPt2
 
             m_Control.Physics.EndDash();
 
-            yield return new WaitForSeconds(GameManager.PlayerSettings.m_DashEndDelay);
+            yield return new WaitForSeconds(GameManager.PSettings.DashEndDelay);
 
             RequestStateChange(StateID.Moving);
         }

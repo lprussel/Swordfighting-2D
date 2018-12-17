@@ -17,7 +17,7 @@ namespace PlayerPt2
         public void Jump()
         {
             Vector3 currentVelocity = m_Rigidbody.velocity;
-            currentVelocity.y = GameManager.PlayerSettings.m_JumpSpeed;
+            currentVelocity.y = GameManager.PSettings.JumpSpeed;
             m_Rigidbody.velocity = currentVelocity;
         }
 
@@ -27,14 +27,14 @@ namespace PlayerPt2
             ToggleKinematic(true);
 
             initialPosition = m_Rigidbody.position;
-            float distanceMult = CalculateMoveDistance(Vector3.right * direction, GameManager.PlayerSettings.m_DashDistance, GameManager.PlayerSettings.m_IgnorePlayerMask);
-            targetPosition = initialPosition + new Vector3(GameManager.PlayerSettings.m_DashDistance * distanceMult * direction, 0, 0);
+            float distanceMult = CalculateMoveDistance(Vector3.right * direction, GameManager.PSettings.DashDistance, GameManager.PSettings.IgnorePlayerMask);
+            targetPosition = initialPosition + new Vector3(GameManager.PSettings.DashDistance * distanceMult * direction, 0, 0);
         }
         
         public void ProgressDash(Vector3 initialPosition, Vector3 targetPosition, float t)
         {
-            float nT = Mathf.Clamp01(t / GameManager.PlayerSettings.m_DashTime);
-            m_Rigidbody.position = (Vector3.Lerp(initialPosition, targetPosition, GameManager.PlayerSettings.m_DashCurve.Evaluate(nT)));
+            float nT = Mathf.Clamp01(t / GameManager.PSettings.DashTime);
+            m_Rigidbody.position = (Vector3.Lerp(initialPosition, targetPosition, GameManager.PSettings.DashCurve.Evaluate(nT)));
         }
 
         public void EndDash()
@@ -62,7 +62,7 @@ namespace PlayerPt2
         public void Run(float x)
         {
             Vector3 currentVelocity = m_Rigidbody.velocity;
-            currentVelocity.x = x * GameManager.PlayerSettings.m_MoveSpeed;
+            currentVelocity.x = x * GameManager.PSettings.MoveSpeed;
             m_Rigidbody.velocity = currentVelocity;
         }
 

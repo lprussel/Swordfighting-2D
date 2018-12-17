@@ -20,7 +20,7 @@ namespace PlayerPt2
             {
                 RaycastHit hit;
 
-                if (Physics.Raycast(m_FeetPosition.position, -Vector3.up, out hit, GameManager.PlayerSettings.m_GroundedHeight, GameManager.PlayerSettings.m_IgnorePlayerMask, QueryTriggerInteraction.UseGlobal))
+                if (Physics.Raycast(m_FeetPosition.position, -Vector3.up, out hit, GameManager.PSettings.GroundedHeight, GameManager.PSettings.IgnorePlayerMask, QueryTriggerInteraction.UseGlobal))
                 {
                     m_LastGroundedValue = true;
                 }
