@@ -17,6 +17,8 @@ namespace PlayerPt2
         [SerializeField] public float m_DashTime = .15f;
         [SerializeField] public float m_DashEndDelay = .01f;
 
+        [SerializeField] public float m_GroundedHeight = .1f;
+
         [SerializeField] public LayerMask m_IgnorePlayerMask;
         [SerializeField] public AnimationCurve m_DashCurve;
     }

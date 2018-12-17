@@ -9,9 +9,6 @@ namespace PlayerPt2
     [Serializable]
     public class GroundedChecker
     {
-        [SerializeField] private float m_GroundedHeight = .5f;
-        [SerializeField] private LayerMask m_IgnorePlayerMask;
-
         [SerializeField] private Transform m_FeetPosition;
 
         private int m_LastCheckedFrame;
@@ -23,7 +20,7 @@ namespace PlayerPt2
             {
                 RaycastHit hit;
 
-                if (Physics.Raycast(m_FeetPosition.position, -Vector3.up, out hit, m_GroundedHeight, m_IgnorePlayerMask, QueryTriggerInteraction.UseGlobal))
+                if (Physics.Raycast(m_FeetPosition.position, -Vector3.up, out hit, GameManager.PlayerSettings.m_GroundedHeight, GameManager.PlayerSettings.m_IgnorePlayerMask, QueryTriggerInteraction.UseGlobal))
                 {
                     m_LastGroundedValue = true;
                 }

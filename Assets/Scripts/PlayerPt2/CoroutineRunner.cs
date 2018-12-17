@@ -18,7 +18,7 @@ namespace PlayerPt2
         public static void StopCoroutine(IEnumerator Routine) { Runner.StopCoroutine(Routine); }
 
         public static void StopCoroutine(Coroutine Coroutine) { Runner.StopCoroutine(Coroutine); }
-    }
 
-    public class CoroutineBehaviour : MonoBehaviour { }
+        public class CoroutineBehaviour : MonoBehaviour { }
+    }
 }
