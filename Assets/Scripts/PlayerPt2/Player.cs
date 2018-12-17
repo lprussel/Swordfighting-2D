@@ -8,21 +8,21 @@ namespace PlayerPt2
 {
     public class Player : MonoBehaviour
     {
-        [SerializeField] private PlayerStateMachine m_StateMachine;
-        [SerializeField] private PlayerControlPayload m_Control;
+        [SerializeField] public PlayerStateMachine m_StateMachine;
+        [SerializeField] public PlayerControlPayload m_Control;
 
         [SerializeField] public bool m_IsAI;
-        [NonSerialized] PlayerDriver m_Driver;
 
-        [SerializeField] public int m_PlayerIndex;
+        [SerializeField] public int m_Index;
         
         private void Awake()
         {
-            if (m_IsAI) m_Driver = gameObject.AddComponent<AIDriver>();
-            else m_Driver = gameObject.AddComponent<KeyboardDriver>();
+            PlayerDriver driver;
+            if (m_IsAI) driver = gameObject.AddComponent<AIDriver>();
+            else driver = gameObject.AddComponent<KeyboardDriver>();
 
             m_Control.Actions = new PlayerActions();
-            m_Driver.Init(m_Control.Actions, m_PlayerIndex);
+            driver.Init(this);
 
             m_StateMachine = new PlayerStateMachine(m_Control);
         }

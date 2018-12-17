@@ -8,10 +8,9 @@ namespace PlayerPt2
 {
     public abstract class PlayerDriver : MonoBehaviour
     {
-        protected PlayerActions m_Actions;
-        protected int m_PlayerIndex;
+        protected Player m_Player;
 
-        public void Init(PlayerActions actions, int playerIndex) { m_Actions = actions; m_PlayerIndex = playerIndex; }
+        public void Init(Player player) { m_Player = player; }
     }
 
     public class KeyboardDriver : PlayerDriver
@@ -19,21 +18,23 @@ namespace PlayerPt2
         private string m_MoveAxis;
         public void Update()
         {
-            if (string.IsNullOrEmpty(m_MoveAxis)) m_MoveAxis = "Horizontal" + m_PlayerIndex.ToString();
+            if (string.IsNullOrEmpty(m_MoveAxis)) m_MoveAxis = "Horizontal" + m_Player.m_Index.ToString();
 
-            if (Input.GetKeyDown(KeyCode.Space)) m_Actions.Jump = true;
-            else m_Actions.Jump = false;
+            PlayerActions actions = m_Player.m_Control.Actions;
 
-            if (Input.GetKeyDown(KeyCode.F)) m_Actions.Attack = true;
-            else m_Actions.Attack = false;
+            if (Input.GetKeyDown(KeyCode.Space)) actions.Jump = true;
+            else m_Player.m_Control.Actions.Jump = false;
 
-            if (Input.GetKey(KeyCode.B)) m_Actions.Block = true;
-            else m_Actions.Block = false;
+            if (Input.GetKeyDown(KeyCode.F)) actions.Attack = true;
+            else m_Player.m_Control.Actions.Attack = false;
 
-            if (Input.GetKeyDown(KeyCode.E)) m_Actions.Dash = true;
-            else m_Actions.Dash = false;
+            if (Input.GetKey(KeyCode.B)) actions.Block = true;
+            else m_Player.m_Control.Actions.Block = false;
 
-            m_Actions.Move = Input.GetAxisRaw(m_MoveAxis);
+            if (Input.GetKeyDown(KeyCode.E)) actions.Dash = true;
+            else m_Player.m_Control.Actions.Dash = false;
+
+            actions.Move = Input.GetAxisRaw(m_MoveAxis);
         }
     }
 
