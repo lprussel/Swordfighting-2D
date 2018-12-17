@@ -18,9 +18,9 @@ namespace PlayerPt2
 
         private float m_MoveSpeed = 8f;
 
-        private float m_DashDistance = 5f;
-        private float m_DashTime = .15f;
-        private float m_DashEndDelay = .01f;
+        [NonSerialized] public float m_DashDistance = 5f;
+        [NonSerialized] public float m_DashTime = .15f;
+        [NonSerialized] public float m_DashEndDelay = .01f;
 
         [SerializeField] private LayerMask m_IgnorePlayerMask;
         [SerializeField] private AnimationCurve m_DashCurve;
@@ -31,32 +31,26 @@ namespace PlayerPt2
             currentVelocity.y = m_JumpSpeed;
             m_Rigidbody.velocity = currentVelocity;
         }
-        
-        // for the greatest control, it's better this not be a coroutine and be handled in PlayerStateMachine
-        public IEnumerator Dash(float direction)
+
+        public void BeginDash(float direction, out Vector3 initialPosition, out Vector3 targetPosition)
         {
-            m_Rigidbody.velocity = new Vector3(0, 0, 0);
-            m_Rigidbody.isKinematic = true;
+            InstantStop();
+            ToggleKinematic(true);
 
+            initialPosition = m_Rigidbody.position;
             float distanceMult = CalculateMoveDistance(Vector3.right * direction, m_DashDistance, m_IgnorePlayerMask);
+            targetPosition = initialPosition + new Vector3(m_DashDistance * distanceMult * direction, 0, 0);
+        }
+        
+        public void ProgressDash(Vector3 initialPosition, Vector3 targetPosition, float t)
+        {
+            float nT = Mathf.Clamp01(t / m_DashTime);
+            m_Rigidbody.position = (Vector3.Lerp(initialPosition, targetPosition, m_DashCurve.Evaluate(nT)));
+        }
 
-            Vector3 initialPosition = m_Rigidbody.position;
-            Vector3 targetPosition = initialPosition + new Vector3(m_DashDistance * distanceMult * direction, 0, 0);
-            
-            float t = 0;
-            while (t <= m_DashTime)
-            {
-                float nT = Mathf.Clamp01(t / m_DashTime);
-                m_Rigidbody.position = (Vector3.Lerp(initialPosition, targetPosition, m_DashCurve.Evaluate(nT)));
-
-                t += Time.fixedDeltaTime;
-                yield return new WaitForFixedUpdate();
-            }
-
-            m_Rigidbody.velocity = new Vector3(0, m_Rigidbody.velocity.y, 0);
-            m_Rigidbody.isKinematic = false;
-
-            yield return new WaitForSeconds(m_DashEndDelay);
+        public void EndDash()
+        {
+            ToggleKinematic(false);
         }
 
         private float CalculateMoveDistance(Vector3 direction, float moveDistance, LayerMask mask)
@@ -88,5 +82,10 @@ namespace PlayerPt2
             float x = Mathf.Lerp(m_Rigidbody.velocity.x, 0, Time.fixedDeltaTime * rate);
             m_Rigidbody.velocity = new Vector3(x, m_Rigidbody.velocity.y, m_Rigidbody.velocity.z);
         }
+
+        public void InstantStop() { m_Rigidbody.velocity = Vector3.zero; }
+
+        public void ToggleKinematic(bool wantsKinematic) { if (IsKinematic() != wantsKinematic) m_Rigidbody.isKinematic = wantsKinematic; }
+        public bool IsKinematic() { return m_Rigidbody.isKinematic; }
     }
 }

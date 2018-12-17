@@ -84,14 +84,14 @@ namespace PlayerPt2
         public abstract StateID m_ID { get; }
 
         public Coroutine StateCoroutine;
-        public abstract IEnumerator RunState();
+        public abstract IEnumerator StateRoutine();
 
         public Action<StateID> RequestStateChange;
 
         public virtual void Enter()
         {
             Debug.Log("Begin " + m_ID.ToString());
-            StateCoroutine = CoroutineRunner.StartCoroutine(RunState());
+            StateCoroutine = CoroutineRunner.StartCoroutine(StateRoutine());
         }
 
         public virtual void Exit()
@@ -108,7 +108,7 @@ namespace PlayerPt2
 
         public override StateID m_ID { get { return StateID.Moving; } }
 
-        public override IEnumerator RunState()
+        public override IEnumerator StateRoutine()
         {
             while (true)
             {
@@ -146,7 +146,7 @@ namespace PlayerPt2
 
         public override StateID m_ID { get { return StateID.Blocking; } }
 
-        public override IEnumerator RunState()
+        public override IEnumerator StateRoutine()
         {
             while (true)
             {
@@ -166,8 +166,8 @@ namespace PlayerPt2
         public AttackingState(PlayerControlPayload control) : base(control) { }
 
         public override StateID m_ID { get { return StateID.Attacking; } }
-
-        public override IEnumerator RunState()
+         
+        public override IEnumerator StateRoutine()
         {
             Debug.Log("Telegraph");
             yield return new WaitForSeconds(.25f);
@@ -184,14 +184,35 @@ namespace PlayerPt2
 
         public override StateID m_ID { get { return StateID.Dashing; } }
         
-        public override IEnumerator RunState()
+        public override IEnumerator StateRoutine()
         {
             float direction = m_Control.Input.Actions.Move == 0 ?
                 (m_Control.Physics.m_Rigidbody.transform.right.x > 0 ? -1 : 1) : (m_Control.Input.Actions.Move > 0 ? 1 : -1);
 
-            yield return m_Control.Physics.Dash(direction);
+            Vector3 initialPosition;
+            Vector3 targetPosition;
+            m_Control.Physics.BeginDash(direction, out initialPosition, out targetPosition);
+
+            float t = 0;
+            while (t < m_Control.Physics.m_DashTime)
+            {
+                m_Control.Physics.ProgressDash(initialPosition, targetPosition, t);
+                t += Time.fixedDeltaTime;
+                yield return new WaitForFixedUpdate();
+            }
+
+            m_Control.Physics.EndDash();
+
+            yield return new WaitForSeconds(m_Control.Physics.m_DashEndDelay);
 
             RequestStateChange(StateID.Moving);
+        }
+
+        // early exit is important
+        public override void Exit()
+        {
+            base.Exit();
+            if (m_Control.Physics.IsKinematic()) m_Control.Physics.EndDash();
         }
     }
 
@@ -202,7 +223,7 @@ namespace PlayerPt2
 
         public override StateID m_ID { get { return StateID.Hit; } }
 
-        public override IEnumerator RunState()
+        public override IEnumerator StateRoutine()
         {
             Debug.Log("Recoiling");
             float t = 0;
@@ -223,7 +244,7 @@ namespace PlayerPt2
 
         public override StateID m_ID { get { return StateID.Dead; } }
 
-        public override IEnumerator RunState()
+        public override IEnumerator StateRoutine()
         {
             Debug.Log("Died");
             float t = 0;
