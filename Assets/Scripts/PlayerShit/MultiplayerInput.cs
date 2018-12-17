@@ -33,7 +33,7 @@ public class MultiplayerInput : MonoBehaviour
         if (isAI)
         {
             inputEmulator = gameObject.AddComponent<InputEmulator>();
-            inputEmulator.Initialize(playerManager, this, GameManager.instance.GetOtherPlayer(playerNumber));
+            inputEmulator.Initialize(playerManager, this, GameManager.GetOtherPlayer(playerNumber));
         }
 
         initialized = true;

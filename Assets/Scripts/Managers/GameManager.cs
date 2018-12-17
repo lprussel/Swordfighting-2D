@@ -1,35 +1,32 @@
 ﻿using UnityEngine;
 using System.Collections;
 using UnityEngine.SceneManagement;
+using PlayerPt2;
 
-public class GameManager : MonoBehaviour
+public static class GameManager
 {
-	public static GameManager instance;
+	public static PlayerManager[] Players;
+    public static PlayerSettings PlayerSettings;
 
-	public PlayerManager[] players;
+    static GameManager()
+    {
+        PlayerSettings = Resources.Load("PlayerSettings") as PlayerSettings;
 
-	void Awake ()
+        Players = GameObject.FindObjectsOfType<PlayerManager>();
+    }
+    
+	public static void PlayerWon ()
 	{
-		instance = this;
+		CoroutineRunner.StartCoroutine (_PlayerWon ());
 	}
 
-	void Start ()
-	{
-		//players = FindObjectsOfType<PlayerManager> ();
-	}
-
-	public void PlayerWon ()
-	{
-		StartCoroutine (_PlayerWon ());
-	}
-
-    public PlayerManager GetOtherPlayer (int thisPlayerNumber)
+    public static PlayerManager GetOtherPlayer (int thisPlayerNumber)
     {
         int otherPlayerNumber = thisPlayerNumber == 0 ? 1 : 0;
-        return players[otherPlayerNumber];
+        return Players[otherPlayerNumber];
     }
 
-	IEnumerator _PlayerWon ()
+	public static IEnumerator _PlayerWon ()
 	{
 		float t = 0;
 		float maxT = 1;
@@ -44,7 +41,7 @@ public class GameManager : MonoBehaviour
 		ResetGame ();
 	}
 
-	public void ResetGame ()
+	public static void ResetGame ()
 	{
 		SceneManager.LoadScene (SceneManager.GetActiveScene ().name);
 	}

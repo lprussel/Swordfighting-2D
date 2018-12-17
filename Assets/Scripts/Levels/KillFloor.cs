@@ -19,7 +19,7 @@ public class KillFloor : MonoBehaviour
 		if (col.tag == "Player")
 		{
 			col.GetComponent<PlayerManager> ().ChangeState (PlayerManager.PlayerState.CANT_MOVE);
-			GameManager.instance.PlayerWon ();
+			GameManager.PlayerWon ();
 		}
 	}
 }

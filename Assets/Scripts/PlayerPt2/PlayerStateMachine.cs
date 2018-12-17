@@ -194,7 +194,7 @@ namespace PlayerPt2
             m_Control.Physics.BeginDash(direction, out initialPosition, out targetPosition);
 
             float t = 0;
-            while (t < m_Control.Physics.m_DashTime)
+            while (t < GameManager.PlayerSettings.m_DashTime)
             {
                 m_Control.Physics.ProgressDash(initialPosition, targetPosition, t);
                 t += Time.fixedDeltaTime;
@@ -203,7 +203,7 @@ namespace PlayerPt2
 
             m_Control.Physics.EndDash();
 
-            yield return new WaitForSeconds(m_Control.Physics.m_DashEndDelay);
+            yield return new WaitForSeconds(GameManager.PlayerSettings.m_DashEndDelay);
 
             RequestStateChange(StateID.Moving);
         }

@@ -20,14 +20,14 @@ public class GameCamera : MonoBehaviour
 
     void Start ()
     {
-        GameManager.instance.players[0].OnHit += GotHit;
-        GameManager.instance.players[1].OnHit += GotHit;
+        GameManager.Players[0].OnHit += GotHit;
+        GameManager.Players[1].OnHit += GotHit;
     }
 
     void OnDisable ()
     {
-        GameManager.instance.players[0].OnHit -= GotHit;
-        GameManager.instance.players[1].OnHit -= GotHit;
+        GameManager.Players[0].OnHit -= GotHit;
+        GameManager.Players[1].OnHit -= GotHit;
     }
 
 	void LateUpdate ()

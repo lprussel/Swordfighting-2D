@@ -97,7 +97,7 @@ public class PlayerManager : MonoBehaviour, IHittable
 	{
 		rig = GetComponent<Rigidbody> ();
 
-        opponent = GameManager.instance.GetOtherPlayer(playerNumber);
+        opponent = GameManager.GetOtherPlayer(playerNumber);
 
         animationManager = gameObject.AddComponent<PlayerAnimation>();
         animationManager.Initialize(this, rig, playerAnimation, swordAnimation);
@@ -479,7 +479,7 @@ public class PlayerManager : MonoBehaviour, IHittable
 			health--;
 			yield return null;
 			ChangeState (PlayerState.CANT_MOVE);
-			GameManager.instance.PlayerWon ();
+			GameManager.PlayerWon();
 		}
 	}
 

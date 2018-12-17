@@ -13,22 +13,11 @@ namespace PlayerPt2
     public class PlayerPhysics
     {
         [SerializeField] public Rigidbody m_Rigidbody;
-
-        private float m_JumpSpeed = 30f;
-
-        private float m_MoveSpeed = 8f;
-
-        [NonSerialized] public float m_DashDistance = 5f;
-        [NonSerialized] public float m_DashTime = .15f;
-        [NonSerialized] public float m_DashEndDelay = .01f;
-
-        [SerializeField] private LayerMask m_IgnorePlayerMask;
-        [SerializeField] private AnimationCurve m_DashCurve;
-
+        
         public void Jump()
         {
             Vector3 currentVelocity = m_Rigidbody.velocity;
-            currentVelocity.y = m_JumpSpeed;
+            currentVelocity.y = GameManager.PlayerSettings.m_JumpSpeed;
             m_Rigidbody.velocity = currentVelocity;
         }
 
@@ -38,14 +27,14 @@ namespace PlayerPt2
             ToggleKinematic(true);
 
             initialPosition = m_Rigidbody.position;
-            float distanceMult = CalculateMoveDistance(Vector3.right * direction, m_DashDistance, m_IgnorePlayerMask);
-            targetPosition = initialPosition + new Vector3(m_DashDistance * distanceMult * direction, 0, 0);
+            float distanceMult = CalculateMoveDistance(Vector3.right * direction, GameManager.PlayerSettings.m_DashDistance, GameManager.PlayerSettings.m_IgnorePlayerMask);
+            targetPosition = initialPosition + new Vector3(GameManager.PlayerSettings.m_DashDistance * distanceMult * direction, 0, 0);
         }
         
         public void ProgressDash(Vector3 initialPosition, Vector3 targetPosition, float t)
         {
-            float nT = Mathf.Clamp01(t / m_DashTime);
-            m_Rigidbody.position = (Vector3.Lerp(initialPosition, targetPosition, m_DashCurve.Evaluate(nT)));
+            float nT = Mathf.Clamp01(t / GameManager.PlayerSettings.m_DashTime);
+            m_Rigidbody.position = (Vector3.Lerp(initialPosition, targetPosition, GameManager.PlayerSettings.m_DashCurve.Evaluate(nT)));
         }
 
         public void EndDash()
@@ -73,7 +62,7 @@ namespace PlayerPt2
         public void Run(float x)
         {
             Vector3 currentVelocity = m_Rigidbody.velocity;
-            currentVelocity.x = x * m_MoveSpeed;
+            currentVelocity.x = x * GameManager.PlayerSettings.m_MoveSpeed;
             m_Rigidbody.velocity = currentVelocity;
         }
 
