@@ -41,9 +41,9 @@ namespace PlayerPt2
     [Serializable]
     public class PlayerControlPayload
     {
-        public PlayerHealth Health;
-        public PlayerPhysics Physics;
-        public GroundedChecker Grounded;
-        public KeyboardInput Input;
+        [SerializeField] public PlayerHealth Health;
+        [SerializeField] public PlayerPhysics Physics;
+        [SerializeField] public GroundedChecker Grounded;
+        [SerializeField] public KeyboardInput Input;
     }
 }
