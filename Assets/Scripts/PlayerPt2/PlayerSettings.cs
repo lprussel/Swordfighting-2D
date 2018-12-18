@@ -27,5 +27,6 @@ namespace PlayerPt2
         [SerializeField] public float AttackTime = .05f;
         [SerializeField] public float AttackEndDelay = .1f;
         [SerializeField] public AnimationCurve AttackCurve;
+        [SerializeField] public LayerMask AttackMask;
     }
 }

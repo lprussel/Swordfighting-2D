@@ -24,6 +24,8 @@ namespace PlayerPt2
             m_Control.Actions = new PlayerActions();
             driver.Init(this);
 
+            m_Control.Transform = transform;
+
             m_Control.Anim.Init();
 
             m_StateMachine = new PlayerStateMachine(m_Control);
@@ -60,6 +62,7 @@ namespace PlayerPt2
         [SerializeField] public PlayerAnim Anim;
         [NonSerialized] public PlayerActions Actions;
         [NonSerialized] public Direction Facing;
+        [NonSerialized] public Transform Transform;
     }
 
     public enum Direction

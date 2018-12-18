@@ -189,12 +189,30 @@ namespace PlayerPt2
 
             m_Control.Anim.PlayTelegraph();
             yield return new WaitForSeconds(.35f);
+
+            bool hitPlayerFlag = false;
             
             m_Control.Anim.PlayRandomAttack();
             float t = 0;
             while (t <= GameManager.PSettings.AttackTime)
             {
                 m_Control.Physics.ProgressDash(initialPosition, targetPosition, t, GameManager.PSettings.AttackTime, GameManager.PSettings.AttackCurve);
+                if ((t / GameManager.PSettings.AttackTime) > .5f && !hitPlayerFlag)
+                {
+                    RaycastHit[] hits = Physics.RaycastAll(m_Control.Transform.position, m_Control.Transform.right, GameManager.PSettings.AttackDistance, GameManager.PSettings.AttackMask, QueryTriggerInteraction.UseGlobal);
+                    for (int i = 0; i < hits.Length; i++)
+                    {
+                        hitPlayerFlag = true;
+
+                        RaycastHit hit = hits[i];
+                        if ((hit.collider.tag == "Interactive" || hit.collider.tag == "Player") && hit.collider.gameObject != m_Control.Transform.gameObject)
+                        {
+                            IHittable target = hit.collider.GetComponent<IHittable>();
+                            Debug.Log("Hit " + hit.collider.gameObject);
+                            //target.GotHit(this);
+                        }
+                    }
+                }
                 t += Time.fixedDeltaTime;
                 yield return new WaitForFixedUpdate();
             }
