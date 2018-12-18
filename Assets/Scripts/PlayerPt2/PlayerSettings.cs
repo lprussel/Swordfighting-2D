@@ -21,5 +21,11 @@ namespace PlayerPt2
 
         [SerializeField] public LayerMask IgnorePlayerMask;
         [SerializeField] public AnimationCurve DashCurve;
+
+        [SerializeField] public float TelegraphTime = .35f;
+        [SerializeField] public float AttackDistance = 5f;
+        [SerializeField] public float AttackTime = .05f;
+        [SerializeField] public float AttackEndDelay = .1f;
+        [SerializeField] public AnimationCurve AttackCurve;
     }
 }

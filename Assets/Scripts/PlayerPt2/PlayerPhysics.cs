@@ -21,20 +21,20 @@ namespace PlayerPt2
             m_Rigidbody.velocity = currentVelocity;
         }
 
-        public void BeginDash(float direction, out Vector3 initialPosition, out Vector3 targetPosition)
+        public void BeginDash(float direction, float distance, out Vector3 initialPosition, out Vector3 targetPosition)
         {
             InstantStop();
             ToggleKinematic(true);
 
             initialPosition = m_Rigidbody.position;
-            float distanceMult = CalculateMoveDistance(Vector3.right * direction, GameManager.PSettings.DashDistance, GameManager.PSettings.IgnorePlayerMask);
-            targetPosition = initialPosition + new Vector3(GameManager.PSettings.DashDistance * distanceMult * direction, 0, 0);
+            float distanceMult = CalculateMoveDistance(Vector3.right * direction, distance, GameManager.PSettings.IgnorePlayerMask);
+            targetPosition = initialPosition + new Vector3(distance * distanceMult * direction, 0, 0);
         }
         
-        public void ProgressDash(Vector3 initialPosition, Vector3 targetPosition, float t)
+        public void ProgressDash(Vector3 initialPosition, Vector3 targetPosition, float t, float maxT, AnimationCurve curve)
         {
-            float nT = Mathf.Clamp01(t / GameManager.PSettings.DashTime);
-            m_Rigidbody.position = (Vector3.Lerp(initialPosition, targetPosition, GameManager.PSettings.DashCurve.Evaluate(nT)));
+            float nT = Mathf.Clamp01(t / maxT);
+            m_Rigidbody.position = (Vector3.Lerp(initialPosition, targetPosition, curve.Evaluate(nT)));
         }
 
         public void EndDash()

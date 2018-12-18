@@ -112,8 +112,19 @@ namespace PlayerPt2
         {
             while (true)
             {
-                m_Control.Physics.Run(m_Control.Actions.Move);
+                float x = m_Control.Actions.Move;
+                float y = m_Control.Physics.m_Rigidbody.velocity.y;
+                if (Mathf.Abs(x) > 0)
+                {
+                    m_Control.Facing = x > 0 ? Direction.Right : Direction.Left;
+                    m_Control.Anim.LookDirection(m_Control.Facing);
+                }
 
+                if (m_Control.Grounded.Check()) m_Control.Anim.PlayRun(x, m_Control.Facing);
+                else m_Control.Anim.PlayJump(x, y, m_Control.Facing);
+
+                m_Control.Physics.Run(x);
+                
                 if (m_Control.Actions.Jump && m_Control.Grounded.Check())
                 {
                     m_Control.Physics.Jump();
@@ -151,6 +162,7 @@ namespace PlayerPt2
             while (true)
             {
                 m_Control.Physics.SlowToStop(10);
+                m_Control.Anim.PlayBlock();
                 if (!m_Control.Actions.Block)
                 {
                     RequestStateChange(StateID.Moving);
@@ -169,11 +181,33 @@ namespace PlayerPt2
          
         public override IEnumerator StateRoutine()
         {
-            Debug.Log("Telegraph");
-            yield return new WaitForSeconds(.25f);
-            Debug.Log("Attack");
-            yield return new WaitForSeconds(.5f);
+            float direction = m_Control.Facing == Direction.Right ? 1 : -1;
+
+            Vector3 initialPosition;
+            Vector3 targetPosition;
+            m_Control.Physics.BeginDash(direction, GameManager.PSettings.AttackDistance, out initialPosition, out targetPosition);
+
+            m_Control.Anim.PlayTelegraph();
+            yield return new WaitForSeconds(.35f);
+            
+            m_Control.Anim.PlayRandomAttack();
+            float t = 0;
+            while (t <= GameManager.PSettings.AttackTime)
+            {
+                m_Control.Physics.ProgressDash(initialPosition, targetPosition, t, GameManager.PSettings.AttackTime, GameManager.PSettings.AttackCurve);
+                t += Time.fixedDeltaTime;
+                yield return new WaitForFixedUpdate();
+            }
+            m_Control.Physics.EndDash();
+            yield return new WaitForSeconds(GameManager.PSettings.AttackEndDelay);
             RequestStateChange(StateID.Moving);
+        }
+
+        // early exit is important
+        public override void Exit()
+        {
+            base.Exit();
+            if (m_Control.Physics.IsKinematic()) m_Control.Physics.EndDash();
         }
     }
 
@@ -191,12 +225,14 @@ namespace PlayerPt2
 
             Vector3 initialPosition;
             Vector3 targetPosition;
-            m_Control.Physics.BeginDash(direction, out initialPosition, out targetPosition);
+            m_Control.Physics.BeginDash(direction, GameManager.PSettings.DashDistance, out initialPosition, out targetPosition);
+
+            m_Control.Anim.PlayDash();
 
             float t = 0;
-            while (t < GameManager.PSettings.DashTime)
+            while (t <= GameManager.PSettings.DashTime)
             {
-                m_Control.Physics.ProgressDash(initialPosition, targetPosition, t);
+                m_Control.Physics.ProgressDash(initialPosition, targetPosition, t, GameManager.PSettings.DashTime, GameManager.PSettings.DashCurve);
                 t += Time.fixedDeltaTime;
                 yield return new WaitForFixedUpdate();
             }
@@ -225,7 +261,7 @@ namespace PlayerPt2
 
         public override IEnumerator StateRoutine()
         {
-            Debug.Log("Recoiling");
+            m_Control.Anim.PlayHit();
             float t = 0;
             while (t < .25f)
             {
@@ -246,7 +282,7 @@ namespace PlayerPt2
 
         public override IEnumerator StateRoutine()
         {
-            Debug.Log("Died");
+            m_Control.Anim.PlayHit();
             float t = 0;
             while (t < .25f)
             {

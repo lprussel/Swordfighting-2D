@@ -24,6 +24,8 @@ namespace PlayerPt2
             m_Control.Actions = new PlayerActions();
             driver.Init(this);
 
+            m_Control.Anim.Init();
+
             m_StateMachine = new PlayerStateMachine(m_Control);
         }
 
@@ -55,6 +57,14 @@ namespace PlayerPt2
         [SerializeField] public PlayerHealth Health;
         [SerializeField] public PlayerPhysics Physics;
         [SerializeField] public GroundedChecker Grounded;
+        [SerializeField] public PlayerAnim Anim;
         [NonSerialized] public PlayerActions Actions;
+        [NonSerialized] public Direction Facing;
+    }
+
+    public enum Direction
+    {
+        Right,
+        Left
     }
 }
