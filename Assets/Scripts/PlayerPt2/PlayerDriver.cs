@@ -38,8 +38,52 @@ namespace PlayerPt2
     {
         private void Update()
         {
+            Player otherPlayer = GameManager.GetOtherPlayer(m_Player.m_Index);
+            float distToPlayer = Vector3.Distance(transform.position, otherPlayer.transform.position);
+
             PlayerActions actions = m_Player.m_Control.Actions;
-            actions.Block = true;
+
+            float diffX = otherPlayer.transform.position.x - transform.position.x;
+            float diffY = otherPlayer.transform.position.y - transform.position.y;
+            
+            if (distToPlayer < GameManager.PSettings.AttackDistance && diffY < .5f)
+            {
+                actions.Move = 0f;
+                actions.Jump = false;
+
+                if (otherPlayer.m_StateMachine.m_CurrentStateID == StateID.Attacking)
+                {
+                    actions.Attack = false;
+                    actions.Block = true;
+                }
+                else
+                {
+                    actions.Block = false;
+                    actions.Attack = true;
+                }
+            }
+            else
+            {
+                actions.Block = false;
+                actions.Attack = false;
+                if (diffX > 0)
+                {
+                    actions.Move = 1f;
+                }
+                else
+                {
+                    actions.Move = -1f;
+                }
+
+                if (diffY > GameManager.PSettings.JumpSpeed * .1f)
+                {
+                    actions.Jump = true;
+                }
+                else
+                {
+                    actions.Jump = false;
+                }
+            }
         }
     }
 
