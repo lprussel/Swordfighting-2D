@@ -22,13 +22,13 @@ namespace PlayerPt2
 
             PlayerActions actions = m_Player.m_Control.Actions;
 
-            actions.Jump = Input.GetKeyDown(KeyCode.Space);
+            actions.Jump = Input.GetButtonDown("Jump" + m_Player.m_Index.ToString());
 
-            actions.Attack = Input.GetKeyDown(KeyCode.F);
+            actions.Attack = Input.GetButtonDown("Attack" + m_Player.m_Index.ToString());
 
-            actions.Dash = Input.GetKeyDown(KeyCode.E);
+            actions.Dash = Input.GetButtonDown("Dodge" + m_Player.m_Index.ToString());
 
-            actions.Block = Input.GetKey(KeyCode.B);
+            actions.Block = Input.GetButton("Block" + m_Player.m_Index.ToString());
             
             actions.Move = Input.GetAxisRaw(m_MoveAxis);
         }
@@ -36,6 +36,11 @@ namespace PlayerPt2
 
     public class AIDriver : PlayerDriver
     {
+        private void Update()
+        {
+            PlayerActions actions = m_Player.m_Control.Actions;
+            actions.Block = true;
+        }
     }
 
     [Serializable]

@@ -43,15 +43,15 @@ namespace PlayerPt2
         {
             if (m_CurrentState != null)
             {
-                m_CurrentState.Exit();
                 m_CurrentState.RequestStateChange -= SetStateFromID;
+                m_CurrentState.Exit();
             }
 
             m_CurrentState = playerState;
             m_CurrentStateID = m_CurrentState.m_ID;
-            m_CurrentState.RequestStateChange += SetStateFromID;
 
             m_CurrentState.Enter();
+            m_CurrentState.RequestStateChange += SetStateFromID;
         }
 
         public PlayerState GetStateFromID(StateID id)
@@ -134,17 +134,17 @@ namespace PlayerPt2
 
                 if (m_Control.Actions.Attack)
                 {
-                    RequestStateChange(StateID.Attacking);
+                    if (RequestStateChange != null) RequestStateChange(StateID.Attacking);
                 }
 
                 if (m_Control.Actions.Block)
                 {
-                    RequestStateChange(StateID.Blocking);
+                    if (RequestStateChange != null) RequestStateChange(StateID.Blocking);
                 }
 
                 if (m_Control.Actions.Dash)
                 {
-                    RequestStateChange(StateID.Dashing);
+                    if (RequestStateChange != null) RequestStateChange(StateID.Dashing);
                 }
 
                 yield return null;

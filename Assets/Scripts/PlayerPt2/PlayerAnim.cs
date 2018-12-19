@@ -105,6 +105,7 @@ namespace PlayerPt2
 
         public void PlayBlock()
         {
+            m_CharacterAnim.Stop();
             m_CharacterAnim.Play(Block);
         }
     }

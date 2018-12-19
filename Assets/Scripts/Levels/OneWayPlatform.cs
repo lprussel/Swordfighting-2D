@@ -33,8 +33,8 @@ public class OneWayPlatform : MonoBehaviour
 		player1Above = false;
 		player2Above = false;
 
-		player1Above = player1.transform.position.y >= floorTransform.position.y - .25f;
-		player2Above = player2.transform.position.y >= floorTransform.position.y - .25f;
+		player1Above = player1.transform.position.y >= floorTransform.position.y - .15f;
+		player2Above = player2.transform.position.y >= floorTransform.position.y - .15f;
 
 		bool delayChange = false;
 

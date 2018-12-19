@@ -63,6 +63,9 @@ namespace PlayerPt2
                 EffectsManager.instance.StartCoroutine(EffectsManager.instance.OnPlayerHit(GameManager.GetOtherPlayer(m_Index).transform, transform));
                 AudioManager.instance.PlaySound(AudioManager.SoundSet.HIT);
 
+                int dir = hitBy.position.x > transform.position.x ? -1 : 1;
+                m_Control.Physics.m_Rigidbody.velocity = new Vector3(25 * dir, 0, 0);
+
                 m_Control.Health.ReduceHealth(amount);
                 if (m_Control.Health.m_Health == 0)
                 {
