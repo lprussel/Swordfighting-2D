@@ -188,10 +188,12 @@ namespace PlayerPt2
             Vector3 initialPosition;
             Vector3 targetPosition;
             m_Control.Physics.BeginDash(direction, GameManager.PSettings.AttackDistance, GameManager.PSettings.EverythingMask, m_Control.BodyCenter.position, out initialPosition, out targetPosition);
-
+            
             m_Control.Anim.PlayTelegraph();
             yield return new WaitForSeconds(.35f);
 
+            AudioManager.instance.PlaySound(AudioManager.SoundSet.SLASH);
+            
             bool hitPlayerFlag = false;
             
             m_Control.Anim.PlayRandomAttack();

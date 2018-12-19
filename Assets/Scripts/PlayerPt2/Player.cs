@@ -41,7 +41,7 @@ namespace PlayerPt2
                 // check if can reposte
                 if (true)
                 {
-                    //EffectsManager.instance.StartCoroutine(EffectsManager.instance.OnPlayerBlock(this));
+                    EffectsManager.instance.StartCoroutine(EffectsManager.instance.OnPlayerBlock(m_Control.BodyCenter));
                     AudioManager.instance.PlaySound(AudioManager.SoundSet.BLOCK);
 
                     int dir = hitBy.position.x > transform.position.x ? -1 : 1;
@@ -60,7 +60,7 @@ namespace PlayerPt2
             }
             else
             {
-                EffectsManager.instance.StartCoroutine(EffectsManager.instance.OnPlayerHit(GameManager.GetOtherPlayer(m_Index).transform, transform));
+                EffectsManager.instance.StartCoroutine(EffectsManager.instance.OnPlayerHit(GameManager.GetOtherPlayer(m_Index).m_Control.BodyCenter, m_Control.BodyCenter));
                 AudioManager.instance.PlaySound(AudioManager.SoundSet.HIT);
 
                 int dir = hitBy.position.x > transform.position.x ? -1 : 1;
@@ -70,6 +70,7 @@ namespace PlayerPt2
                 if (m_Control.Health.m_Health == 0)
                 {
                     m_StateMachine.SetStateFromID(StateID.Dead);
+                    GameManager.PlayerWon();
                 }
                 else
                 {
