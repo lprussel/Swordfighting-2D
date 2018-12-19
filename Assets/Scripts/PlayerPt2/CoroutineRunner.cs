@@ -4,6 +4,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using UnityEngine;
+using UnityEngine.SceneManagement;
 
 namespace PlayerPt2
 {
@@ -11,7 +12,9 @@ namespace PlayerPt2
     {
         private static CoroutineBehaviour Runner;
 
-        static CoroutineRunner() { Runner = new GameObject().AddComponent<CoroutineBehaviour>(); }
+        static CoroutineRunner() { SceneManager.sceneLoaded += SceneLoaded; SceneLoaded(default(Scene), LoadSceneMode.Single); }
+
+        public static void SceneLoaded(Scene scene, LoadSceneMode loadSceneMode) { Runner = new GameObject().AddComponent<CoroutineBehaviour>(); }
 
         public static Coroutine StartCoroutine(IEnumerator Routine) { return Runner.StartCoroutine(Routine); }
 

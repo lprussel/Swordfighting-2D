@@ -13,6 +13,7 @@ namespace PlayerPt2
     public class PlayerPhysics
     {
         [SerializeField] public Rigidbody m_Rigidbody;
+        [SerializeField] public CapsuleCollider m_Collider;
         
         public void Jump()
         {
@@ -21,13 +22,13 @@ namespace PlayerPt2
             m_Rigidbody.velocity = currentVelocity;
         }
 
-        public void BeginDash(float direction, float distance, out Vector3 initialPosition, out Vector3 targetPosition)
+        public void BeginDash(float direction, float distance, LayerMask mask, Vector3 source, out Vector3 initialPosition, out Vector3 targetPosition)
         {
             InstantStop();
             ToggleKinematic(true);
 
             initialPosition = m_Rigidbody.position;
-            float distanceMult = CalculateMoveDistance(Vector3.right * direction, distance, GameManager.PSettings.IgnorePlayerMask);
+            float distanceMult = CalculateMoveDistance(source, Vector3.right * direction, distance, mask);
             targetPosition = initialPosition + new Vector3(distance * distanceMult * direction, 0, 0);
         }
         
@@ -42,14 +43,14 @@ namespace PlayerPt2
             ToggleKinematic(false);
         }
 
-        private float CalculateMoveDistance(Vector3 direction, float moveDistance, LayerMask mask)
+        private float CalculateMoveDistance(Vector3 source, Vector3 direction, float moveDistance, LayerMask mask)
         {
             float acceptableDistance;
             RaycastHit hit;
 
-            if (Physics.Raycast(m_Rigidbody.position, direction.normalized, out hit, moveDistance, mask, QueryTriggerInteraction.UseGlobal))
+            if (Physics.Raycast(source, direction.normalized, out hit, moveDistance, mask, QueryTriggerInteraction.UseGlobal))
             {
-                acceptableDistance = (hit.point - m_Rigidbody.position).magnitude / moveDistance;
+                acceptableDistance = ((hit.point - source).magnitude - (m_Collider.radius * 2)) / moveDistance;
             }
             else
             {

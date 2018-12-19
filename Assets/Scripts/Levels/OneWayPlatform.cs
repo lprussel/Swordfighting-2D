@@ -1,5 +1,6 @@
 ﻿using UnityEngine;
 using System.Collections;
+using PlayerPt2;
 
 public class OneWayPlatform : MonoBehaviour
 {
@@ -7,8 +8,8 @@ public class OneWayPlatform : MonoBehaviour
 	public string player1Layer;
 	public string player2Layer;
 
-	public PlayerManager player1;
-	public PlayerManager player2;
+	public Player player1;
+	public Player player2;
 
 	public Transform floorTransform;
 
@@ -20,6 +21,9 @@ public class OneWayPlatform : MonoBehaviour
 	void Start ()
 	{
 		gameObject.layer = LayerMask.NameToLayer (noPlayerLayer);
+
+        player1 = GameManager.Players[0];
+        player2 = GameManager.Players[1];
 	}
 
 	void Update ()
@@ -29,8 +33,8 @@ public class OneWayPlatform : MonoBehaviour
 		player1Above = false;
 		player2Above = false;
 
-		player1Above = player1.footTransform.position.y >= floorTransform.position.y - .25f;
-		player2Above = player2.footTransform.position.y >= floorTransform.position.y - .25f;
+		player1Above = player1.transform.position.y >= floorTransform.position.y - .25f;
+		player2Above = player2.transform.position.y >= floorTransform.position.y - .25f;
 
 		bool delayChange = false;
 

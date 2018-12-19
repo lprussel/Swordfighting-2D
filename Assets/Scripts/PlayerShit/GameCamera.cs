@@ -18,18 +18,6 @@ public class GameCamera : MonoBehaviour
 		zoom = minZoom + -(Vector3.Distance(players[0].transform.position, players[1].transform.position) / 2);
 	}
 
-    void Start ()
-    {
-        GameManager.Players[0].OnHit += GotHit;
-        GameManager.Players[1].OnHit += GotHit;
-    }
-
-    void OnDisable ()
-    {
-        GameManager.Players[0].OnHit -= GotHit;
-        GameManager.Players[1].OnHit -= GotHit;
-    }
-
 	void LateUpdate ()
 	{
 		Vector3 centerPos = Vector3.zero;

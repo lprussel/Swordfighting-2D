@@ -1,16 +1,17 @@
 ﻿using UnityEngine;
 using System.Collections;
+using PlayerPt2;
 
 public class HealthBar : MonoBehaviour
 {
-	public PlayerManager player;
+	public Player player;
 	private int currentDisplay;
 
 	public Transform barTransform;
 
 	void Update ()
 	{
-		if (player.health != currentDisplay)
+		if (player.m_Control.Health.m_Health != currentDisplay)
 		{
 			UpdateDisplay ();
 		}
@@ -18,9 +19,9 @@ public class HealthBar : MonoBehaviour
 
 	void UpdateDisplay ()
 	{
-		currentDisplay = player.health;
+		currentDisplay = player.m_Control.Health.m_Health;
 
-		barTransform.localPosition = new Vector3 ((((float)currentDisplay / PlayerManager.maxHealth) / 2) - .5f, 0, -1);
-		barTransform.localScale = new Vector3 (((float)currentDisplay / PlayerManager.maxHealth), 1, 1);
+		barTransform.localPosition = new Vector3 ((((float)currentDisplay / PlayerHealth.MaxHealth) / 2) - .5f, 0, -1);
+		barTransform.localScale = new Vector3 (((float)currentDisplay / PlayerHealth.MaxHealth), 1, 1);
 	}
 }

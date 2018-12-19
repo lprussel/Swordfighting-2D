@@ -1,7 +1,8 @@
 ﻿using UnityEngine;
 using System.Collections;
+using PlayerPt2;
 
 public interface IHittable
 {
-	void GotHit (PlayerManager attackingPlayer);
+	void GotHit (int amount, Transform attackingPlayer);
 }

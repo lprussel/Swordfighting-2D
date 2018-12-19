@@ -22,6 +22,7 @@ namespace PlayerPt2
             m_StateMap.Add(StateID.Blocking, new BlockingState(control));
             m_StateMap.Add(StateID.Attacking, new AttackingState(control));
             m_StateMap.Add(StateID.Dashing, new DashingState(control));
+            m_StateMap.Add(StateID.Recoiling, new RecoilingState(control));
             m_StateMap.Add(StateID.Hit, new HitState(control));
             m_StateMap.Add(StateID.Dead, new DeadState(control));
 
@@ -68,6 +69,7 @@ namespace PlayerPt2
         Attacking,
         Dashing,
         Hit,
+        Recoiling,
         Dead
     }
 
@@ -185,7 +187,7 @@ namespace PlayerPt2
 
             Vector3 initialPosition;
             Vector3 targetPosition;
-            m_Control.Physics.BeginDash(direction, GameManager.PSettings.AttackDistance, out initialPosition, out targetPosition);
+            m_Control.Physics.BeginDash(direction, GameManager.PSettings.AttackDistance, GameManager.PSettings.EverythingMask, m_Control.BodyCenter.position, out initialPosition, out targetPosition);
 
             m_Control.Anim.PlayTelegraph();
             yield return new WaitForSeconds(.35f);
@@ -199,7 +201,7 @@ namespace PlayerPt2
                 m_Control.Physics.ProgressDash(initialPosition, targetPosition, t, GameManager.PSettings.AttackTime, GameManager.PSettings.AttackCurve);
                 if ((t / GameManager.PSettings.AttackTime) > .5f && !hitPlayerFlag)
                 {
-                    RaycastHit[] hits = Physics.RaycastAll(m_Control.Transform.position, m_Control.Transform.right, GameManager.PSettings.AttackDistance, GameManager.PSettings.AttackMask, QueryTriggerInteraction.UseGlobal);
+                    RaycastHit[] hits = Physics.RaycastAll(m_Control.BodyCenter.position, m_Control.Transform.right, GameManager.PSettings.AttackDistance, GameManager.PSettings.AttackMask, QueryTriggerInteraction.UseGlobal);
                     for (int i = 0; i < hits.Length; i++)
                     {
                         hitPlayerFlag = true;
@@ -208,8 +210,7 @@ namespace PlayerPt2
                         if ((hit.collider.tag == "Interactive" || hit.collider.tag == "Player") && hit.collider.gameObject != m_Control.Transform.gameObject)
                         {
                             IHittable target = hit.collider.GetComponent<IHittable>();
-                            Debug.Log("Hit " + hit.collider.gameObject);
-                            //target.GotHit(this);
+                            target.GotHit(1, m_Control.Transform);
                         }
                     }
                 }
@@ -243,7 +244,7 @@ namespace PlayerPt2
 
             Vector3 initialPosition;
             Vector3 targetPosition;
-            m_Control.Physics.BeginDash(direction, GameManager.PSettings.DashDistance, out initialPosition, out targetPosition);
+            m_Control.Physics.BeginDash(direction, GameManager.PSettings.DashDistance, GameManager.PSettings.IgnorePlayerMask, m_Control.BodyCenter.position, out initialPosition, out targetPosition);
 
             m_Control.Anim.PlayDash();
 
@@ -267,6 +268,27 @@ namespace PlayerPt2
         {
             base.Exit();
             if (m_Control.Physics.IsKinematic()) m_Control.Physics.EndDash();
+        }
+    }
+
+    [Serializable]
+    public class RecoilingState : PlayerState
+    {
+        public RecoilingState(PlayerControlPayload control) : base(control) { }
+
+        public override StateID m_ID { get { return StateID.Recoiling; } }
+
+        public override IEnumerator StateRoutine()
+        {
+            m_Control.Anim.PlayHit();
+            float t = 0;
+            while (t < .25f)
+            {
+                m_Control.Physics.SlowToStop(5);
+                t += Time.fixedDeltaTime;
+                yield return new WaitForFixedUpdate();
+            }
+            RequestStateChange(StateID.Moving);
         }
     }
 

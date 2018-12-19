@@ -1,5 +1,6 @@
 ﻿using UnityEngine;
 using System.Collections;
+using PlayerPt2;
 
 public class KillFloor : MonoBehaviour
 {
@@ -18,7 +19,7 @@ public class KillFloor : MonoBehaviour
 	{
 		if (col.tag == "Player")
 		{
-			col.GetComponent<PlayerManager> ().ChangeState (PlayerManager.PlayerState.CANT_MOVE);
+			col.GetComponent<Player>().m_StateMachine.SetStateFromID(StateID.Dead);
 			GameManager.PlayerWon ();
 		}
 	}

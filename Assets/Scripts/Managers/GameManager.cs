@@ -5,17 +5,23 @@ using PlayerPt2;
 
 public static class GameManager
 {
-	public static PlayerManager[] Players;
+	public static Player[] Players;
     public static PlayerSettings PSettings;
 
     static GameManager()
     {
         PSettings = Resources.Load("PlayerSettings") as PlayerSettings;
 
-        Players = GameObject.FindObjectsOfType<PlayerManager>();
+        SceneLoaded(default(Scene), LoadSceneMode.Single);
+        SceneManager.sceneLoaded += SceneLoaded;
     }
-    
-    public static PlayerManager GetOtherPlayer (int thisPlayerNumber)
+
+    public static void SceneLoaded(Scene scene, LoadSceneMode loadSceneMode)
+    {
+        Players = GameObject.FindObjectsOfType<Player>();
+    }
+
+    public static Player GetOtherPlayer (int thisPlayerNumber)
     {
         int otherPlayerNumber = thisPlayerNumber == 0 ? 1 : 0;
         return Players[otherPlayerNumber];
